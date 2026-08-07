@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Kelola Siswa - KEPO Murid</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body class="bg-light">
+
+  <!-- Navbar -->
+  <nav class="navbar navbar-expand-lg navbar-dark bg-dark mb-4">
+    <div class="container">
+      <a class="navbar-brand fw-bold" href="index.html">KEPO Murid</a>
+      <div class="collapse navbar-collapse">
+        <ul class="navbar-nav me-auto">
+          <li class="nav-item"><a class="nav-link" href="index.html">Dashboard</a></li>
+          <li class="nav-item"><a class="nav-link" href="input-pelanggaran.html">Catat Pelanggaran</a></li>
+          <li class="nav-item"><a class="nav-link active" href="siswa.html">Data Siswa</a></li>
+          <li class="nav-item"><a class="nav-link" href="jenis-pelanggaran.html">Jenis Pelanggaran</a></li>
+          <li class="nav-item"><a class="nav-link" href="laporan.html">Laporan</a></li>
+        </ul>
+        <div class="d-flex align-items-center text-white gap-3">
+          <span id="nav-user-name" class="small fw-semibold"></span>
+          <button class="btn btn-outline-light btn-sm" onclick="Auth.logout()">Logout</button>
+        </div>
+      </div>
+    </div>
+  </nav>
+
+  <div class="container">
+    <div class="row">
+      <!-- Form Input / Edit Siswa -->
+      <div class="col-md-4 mb-4">
+        <div class="card shadow-sm border-0">
+          <div class="card-body">
+            <h5 class="fw-bold mb-3">Form Data Siswa</h5>
+            <form id="form-siswa" onsubmit="handleSaveSiswa(event)">
+              <input type="hidden" id="siswa-id">
+              <div class="mb-3">
+                <label class="form-label small">NIS</label>
+                <input type="text" id="siswa-nis" class="form-control" required>
+              </div>
+              <div class="mb-3">
+                <label class="form-label small">Nama Lengkap</label>
+                <input type="text" id="siswa-nama" class="form-control" required>
+              </div>
+              <div class="mb-3">
+                <label class="form-label small">Kelas</label>
+                <input type="text" id="siswa-kelas" class="form-control" placeholder="Contoh: VII.1" required>
+              </div>
+              <div class="mb-3">
+                <label class="form-label small">Status</label>
+                <select id="siswa-status" class="form-select">
+                  <option value="Aktif">Aktif</option>
+                  <option value="Non-Aktif">Non-Aktif</option>
+                </select>
+              </div>
+              <div class="d-flex gap-2">
+                <button type="submit" class="btn btn-primary flex-fill">Simpan</button>
+                <button type="button" class="btn btn-secondary" onclick="resetSiswaForm()">Reset</button>
+              </div>
+            </form>
+          </div>
+        </div>
+      </div>
+
+      <!-- Tabel Data Siswa -->
+      <div class="col-md-8">
+        <div class="card shadow-sm border-0">
+          <div class="card-body">
+            <div class="row mb-3">
+              <div class="col-md-6 mb-2">
+                <input type="text" id="search-siswa" class="form-control" placeholder="Cari Nama / NIS..." oninput="loadDataSiswa()">
+              </div>
+              <div class="col-md-6">
+                <input type="text" id="filter-kelas" class="form-control" placeholder="Filter Kelas..." oninput="loadDataSiswa()">
+              </div>
+            </div>
+            <div class="table-responsive">
+              <table class="table table-hover align-middle">
+                <thead class="table-light">
+                  <tr>
+                    <th>#</th>
+                    <th>NIS</th>
+                    <th>Nama</th>
+                    <th>Kelas</th>
+                    <th>Status</th>
+                    <th>Aksi</th>
+                  </tr>
+                </thead>
+                <tbody id="tbody-siswa">
+                  <!-- Data di-render via siswa.js -->
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="js/config.js"></script>
+  <script src="js/api.js"></script>
+  <script src="js/auth.js"></script>
+  <script src="js/siswa.js"></script>
+</body>
+</html>
