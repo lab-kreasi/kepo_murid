@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Laporan & Ranking - KEPO Murid</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <style>
+    @media print {
+      .no-print { display: none !important; }
+      .card { border: none !important; shadow: none !important; }
+    }
+  </style>
+</head>
+<body class="bg-light">
+
+  <!-- Navbar -->
+  <nav class="navbar navbar-expand-lg navbar-dark bg-dark mb-4 no-print">
+    <div class="container">
+      <a class="navbar-brand fw-bold" href="index.html">KEPO Murid</a>
+      <div class="collapse navbar-collapse">
+        <ul class="navbar-nav me-auto">
+          <li class="nav-item"><a class="nav-link" href="index.html">Dashboard</a></li>
+          <li class="nav-item"><a class="nav-link" href="input-pelanggaran.html">Catat Pelanggaran</a></li>
+          <li class="nav-item"><a class="nav-link" href="siswa.html">Data Siswa</a></li>
+          <li class="nav-item"><a class="nav-link" href="jenis-pelanggaran.html">Jenis Pelanggaran</a></li>
+          <li class="nav-item"><a class="nav-link active" href="laporan.html">Laporan</a></li>
+        </ul>
+        <div class="d-flex align-items-center text-white gap-3">
+          <span id="nav-user-name" class="small fw-semibold"></span>
+          <button class="btn btn-outline-light btn-sm" onclick="Auth.logout()">Logout</button>
+        </div>
+      </div>
+    </div>
+  </nav>
+
+  <div class="container">
+    <div class="card shadow-sm border-0">
+      <div class="card-body">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+          <div>
+            <h4 class="fw-bold mb-1">Laporan Akumulasi Pelanggaran Siswa</h4>
+            <p class="text-muted small mb-0">Rekapitulasi total poin dan frekuensi pelanggaran</p>
+          </div>
+          <div class="d-flex gap-2 no-print">
+            <select id="filter-limit" class="form-select form-select-sm" style="width: auto;" onchange="loadLaporanRanking()">
+              <option value="">Tampilkan Semua</option>
+              <option value="10">Top 10</option>
+              <option value="20">Top 20</option>
+              <option value="50">Top 50</option>
+            </select>
+            <button class="btn btn-secondary btn-sm" onclick="printLaporan()">Cetak PDF</button>
+            <button class="btn btn-success btn-sm" onclick="exportToCSV()">Ekspor CSV</button>
+          </div>
+        </div>
+
+        <div class="table-responsive">
+          <table class="table table-bordered table-striped align-middle">
+            <thead class="table-dark">
+              <tr>
+                <th>Peringkat</th>
+                <th>NIS</th>
+                <th>Nama Siswa</th>
+                <th>Kelas</th>
+                <th>Frekuensi Pelanggaran</th>
+                <th>Total Poin</th>
+              </tr>
+            </thead>
+            <tbody id="tbody-laporan">
+              <!-- Data di-render via laporan.js -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="js/config.js"></script>
+  <script src="js/api.js"></script>
+  <script src="js/auth.js"></script>
+  <script src="js/laporan.js"></script>
+</body>
+</html>
