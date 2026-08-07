@@ -2,353 +2,80 @@
 <html lang="id">
 <head>
   <meta charset="UTF-8">
-  <script src="https://cdn.tailwindcss.com"></script>
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
-  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-  <script src="js/config.js"></script>
-  <script src="js/api.js"></script>
-  <style>
-    body { font-family: 'Inter', sans-serif; }
-  </style>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Dashboard - KEPO Murid</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
 </head>
-<body class="bg-gray-100 text-gray-800">
+<body class="bg-light">
 
-<div class="min-h-screen flex flex-col md:flex-row">
-  
-  <!-- SIDEBAR -->
-  <aside class="w-full md:w-64 bg-gray-900 text-white p-4 flex-shrink-0 min-h-screen flex flex-col justify-between">
-    <div>
-      <div class="flex items-center gap-3 mb-6">
-        <i class="bi bi-shield-check text-3xl text-blue-500"></i>
-        <div>
-          <h1 class="m-0 font-bold text-lg leading-tight">KEPO</h1>
-          <p class="text-xs text-gray-400">SMPN 3 Makassar</p>
+  <!-- Navbar -->
+  <nav class="navbar navbar-expand-lg navbar-dark bg-dark mb-4">
+    <div class="container">
+      <a class="navbar-brand fw-bold" href="index.html">KEPO Murid</a>
+      <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+      <div class="collapse navbar-collapse" id="navbarNav">
+        <ul class="navbar-nav me-auto">
+          <li class="nav-item"><a class="nav-link active" href="index.html">Dashboard</a></li>
+          <li class="nav-item"><a class="nav-link" href="input-pelanggaran.html">Catat Pelanggaran</a></li>
+          <li class="nav-item"><a class="nav-link" href="siswa.html">Data Siswa</a></li>
+          <li class="nav-item"><a class="nav-link" href="jenis-pelanggaran.html">Jenis Pelanggaran</a></li>
+          <li class="nav-item"><a class="nav-link" href="laporan.html">Laporan</a></li>
+        </ul>
+        <div class="d-flex align-items-center text-white gap-3">
+          <span id="nav-user-name" class="small fw-semibold"></span>
+          <button class="btn btn-outline-light btn-sm" onclick="Auth.logout()">Logout</button>
         </div>
       </div>
+    </div>
+  </nav>
 
-      <div class="text-xs text-gray-400 mb-4">
-        Role: <span id="userRoleBadge" class="text-yellow-400 font-semibold uppercase">Guest</span>
-      </div>
-
-      <nav class="space-y-1">
-        <a onclick="switchTab('dashboard', this)" class="nav-link bg-blue-600 text-white flex items-center gap-3 px-4 py-2.5 rounded-lg text-sm font-medium cursor-pointer transition">
-          <i class="bi bi-speedometer2"></i> Dashboard
-        </a>
-        <a onclick="switchTab('siswa', this)" class="nav-link text-gray-300 hover:bg-gray-800 hover:text-white flex items-center gap-3 px-4 py-2.5 rounded-lg text-sm font-medium cursor-pointer transition">
-          <i class="bi bi-people-fill"></i> Data Siswa
-        </a>
-        <a onclick="switchTab('terlambat', this)" class="nav-link text-gray-300 hover:bg-gray-800 hover:text-white flex items-center gap-3 px-4 py-2.5 rounded-lg text-sm font-medium cursor-pointer transition">
-          <i class="bi bi-clock-history"></i> Terlambat
-        </a>
-        <a onclick="switchTab('bolos', this)" class="nav-link text-gray-300 hover:bg-gray-800 hover:text-white flex items-center gap-3 px-4 py-2.5 rounded-lg text-sm font-medium cursor-pointer transition">
-          <i class="bi bi-person-dash"></i> Bolos
-        </a>
-        <a onclick="switchTab('alpa', this)" class="nav-link text-gray-300 hover:bg-gray-800 hover:text-white flex items-center gap-3 px-4 py-2.5 rounded-lg text-sm font-medium cursor-pointer transition">
-          <i class="bi bi-calendar-x"></i> Alpa
-        </a>
-        <a onclick="switchTab('ranking_siswa', this)" class="nav-link text-gray-300 hover:bg-gray-800 hover:text-white flex items-center gap-3 px-4 py-2.5 rounded-lg text-sm font-medium cursor-pointer transition">
-          <i class="bi bi-trophy"></i> Ranking Siswa
-        </a>
-        <a onclick="switchTab('ranking_pelanggaran', this)" class="nav-link text-gray-300 hover:bg-gray-800 hover:text-white flex items-center gap-3 px-4 py-2.5 rounded-lg text-sm font-medium cursor-pointer transition">
-          <i class="bi bi-bar-chart"></i> Ranking Pelanggaran
-        </a>
-      </nav>
+  <div class="container">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+      <h4 class="fw-bold m-0">Dashboard Statistik</h4>
     </div>
 
-    <div class="mt-8 pt-4 border-t border-gray-800">
-      <button id="btnLoginLogout" class="w-full py-2 px-3 text-sm font-medium border border-gray-600 rounded-lg text-gray-200 hover:bg-gray-800 transition flex items-center justify-center gap-2" onclick="toggleAuthModal()">
-        <i class="bi bi-box-arrow-in-right"></i> Login Petugas
-      </button>
-    </div>
-  </aside>
-
-  <!-- MAIN CONTENT -->
-  <main class="flex-1 p-6">
-    <div class="bg-white p-4 rounded-lg shadow-sm border border-gray-200 flex justify-between items-center mb-6">
-      <h2 class="m-0 font-bold text-gray-700 text-lg" id="pageTitle">Dashboard</h2>
-      <div class="flex items-center gap-2">
-        <select id="selectTahun" class="px-3 py-1.5 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white" onchange="loadCurrentTab()">
-          <!-- Loaded Dynamically -->
-        </select>
+    <!-- Ringkasan Data -->
+    <div class="row mb-4">
+      <div class="col-md-3">
+        <div class="card bg-primary text-white border-0 shadow-sm">
+          <div class="card-body text-center">
+            <h6 class="text-uppercase fw-bold small">Total Siswa</h6>
+            <h2 id="dash-total-siswa" class="fw-bold mb-0">0</h2>
+          </div>
+        </div>
       </div>
-    </div>
-
-    <div class="bg-white p-6 rounded-lg shadow-sm border border-gray-200" id="appContainer">
-      <!-- Dynamic Content Rendered Here -->
-      <div class="text-center py-12">
-        <div class="inline-block animate-spin rounded-full h-8 w-8 border-4 border-blue-600 border-t-transparent"></div>
+      <div class="col-md-3">
+        <div class="card bg-warning text-dark border-0 shadow-sm">
+          <div class="card-body text-center">
+            <h6 class="text-uppercase fw-bold small">Pelanggaran Hari Ini</h6>
+            <h2 id="dash-pelanggaran-hari-ini" class="fw-bold mb-0">0</h2>
+          </div>
+        </div>
       </div>
-    </div>
-  </main>
-</div>
-
-<!-- LOGIN MODAL -->
-<div id="loginModal" class="fixed inset-0 bg-black/50 z-50 flex items-center justify-center hidden">
-  <div class="bg-white rounded-lg shadow-xl w-full max-w-sm overflow-hidden">
-    <div class="bg-blue-600 text-white px-4 py-3 flex justify-between items-center">
-      <h3 class="font-bold text-sm">Login Petugas</h3>
-      <button onclick="toggleAuthModal()" class="text-white hover:text-gray-200 text-xl font-bold leading-none">&times;</button>
-    </div>
-    <div class="p-4 space-y-3">
-      <div>
-        <label class="block text-xs font-bold text-gray-700 mb-1">Username</label>
-        <input type="text" id="loginUser" class="w-full px-3 py-1.5 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+      <div class="col-md-3">
+        <div class="card bg-danger text-white border-0 shadow-sm">
+          <div class="card-body text-center">
+            <h6 class="text-uppercase fw-bold small">Total Poin Kumulatif</h6>
+            <h2 id="dash-total-poin" class="fw-bold mb-0">0</h2>
+          </div>
+        </div>
       </div>
-      <div>
-        <label class="block text-xs font-bold text-gray-700 mb-1">Password</label>
-        <input type="password" id="loginPass" class="w-full px-3 py-1.5 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+      <div class="col-md-3">
+        <div class="card bg-success text-white border-0 shadow-sm">
+          <div class="card-body text-center">
+            <h6 class="text-uppercase fw-bold small">Total Catatan</h6>
+            <h2 id="dash-total-catatan" class="fw-bold mb-0">0</h2>
+          </div>
+        </div>
       </div>
-      <button class="w-full py-2 bg-blue-600 text-white text-sm font-bold rounded-md hover:bg-blue-700 transition" onclick="doLogin()">Masuk</button>
     </div>
   </div>
-</div>
 
-<script>
-  let state = {
-    user: { username: 'Tamu', role: 'guest' },
-    currentTab: 'dashboard',
-    tahun: '2026-2027'
-  };
-
-  window.onload = function() {
-    google.script.run.withSuccessHandler(list => {
-      const select = document.getElementById('selectTahun');
-      select.innerHTML = list.map(t => `<option value="${t.tahun}">${t.tahun}</option>`).join('');
-      state.tahun = select.value;
-      loadCurrentTab();
-    }).getTahunList();
-  };
-
-  function switchTab(tab, element) {
-    state.currentTab = tab;
-    document.querySelectorAll('.nav-link').forEach(el => {
-      el.classList.remove('bg-blue-600', 'text-white');
-      el.classList.add('text-gray-300', 'hover:bg-gray-800', 'hover:text-white');
-    });
-    
-    const activeEl = element || event.currentTarget;
-    activeEl.classList.remove('text-gray-300', 'hover:bg-gray-800', 'hover:text-white');
-    activeEl.classList.add('bg-blue-600', 'text-white');
-
-    loadCurrentTab();
-  }
-
-  function loadCurrentTab() {
-    state.tahun = document.getElementById('selectTahun').value;
-    const container = document.getElementById('appContainer');
-    container.innerHTML = '<div class="text-center py-12"><div class="inline-block animate-spin rounded-full h-8 w-8 border-4 border-blue-600 border-t-transparent"></div></div>';
-
-    if (state.currentTab === 'dashboard') {
-      document.getElementById('pageTitle').innerText = 'Dashboard Statistik';
-      google.script.run.withSuccessHandler(renderDashboard).getDashboardData(state.tahun);
-    } 
-    else if (['terlambat', 'bolos', 'alpa'].includes(state.currentTab)) {
-      document.getElementById('pageTitle').innerText = 'Input Absensi: ' + state.currentTab.toUpperCase();
-      renderAbsensiForm();
-    }
-    else if (state.currentTab === 'siswa') {
-      document.getElementById('pageTitle').innerText = 'Database Siswa';
-      google.script.run.withSuccessHandler(renderSiswaTable).getSiswaData(state.tahun, '', '');
-    }
-    else if (state.currentTab === 'ranking_siswa') {
-      document.getElementById('pageTitle').innerText = 'Ranking Siswa (Top Violators)';
-      google.script.run.withSuccessHandler(renderRankingSiswa).getRankingSiswa(state.tahun);
-    }
-    else if (state.currentTab === 'ranking_pelanggaran') {
-      document.getElementById('pageTitle').innerText = 'Ranking Pelanggaran';
-      google.script.run.withSuccessHandler(renderRankingPelanggaran).getRankingPelanggaran(state.tahun);
-    }
-  }
-
-  // --- RENDER DASHBOARD ---
-  function renderDashboard(data) {
-    document.getElementById('appContainer').innerHTML = `
-      <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
-        <div class="p-4 bg-gray-50 border-l-4 border-blue-600 rounded-r-lg shadow-sm">
-          <h6 class="text-xs font-bold text-gray-500 uppercase">Total Catatan</h6>
-          <h3 class="text-2xl font-bold text-gray-800">${data.totalCatatan}</h3>
-        </div>
-        <div class="p-4 bg-gray-50 border-l-4 border-green-600 rounded-r-lg shadow-sm">
-          <h6 class="text-xs font-bold text-gray-500 uppercase">Siswa Aktif</h6>
-          <h3 class="text-2xl font-bold text-gray-800">${data.totalSiswa}</h3>
-        </div>
-        <div class="p-4 bg-gray-50 border-l-4 border-red-600 rounded-r-lg shadow-sm">
-          <h6 class="text-xs font-bold text-gray-500 uppercase">Total Poin</h6>
-          <h3 class="text-2xl font-bold text-red-600">${data.totalPoin}</h3>
-        </div>
-      </div>
-      <div class="bg-white p-4 rounded-lg border border-gray-200 shadow-sm">
-        <canvas id="lineChart" style="max-height:300px;"></canvas>
-      </div>
-    `;
-
-    new Chart(document.getElementById('lineChart'), {
-      type: 'line',
-      data: {
-        labels: data.bulanLabels,
-        datasets: [{ label: 'Pelanggaran', data: data.bulanData, borderColor: '#2563eb', fill: false }]
-      }
-    });
-  }
-
-  // --- RENDER ABSENSI FORM (TERLAMBAT / BOLOS / ALPA) ---
-  function renderAbsensiForm() {
-    document.getElementById('appContainer').innerHTML = `
-      <div class="flex flex-col sm:flex-row gap-2 mb-4">
-        <input type="text" id="kelasInput" class="px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm w-full sm:w-64" placeholder="Ketik Kelas (misal: IX.1)">
-        <button class="px-4 py-2 bg-blue-600 text-white text-sm font-semibold rounded-md hover:bg-blue-700 transition" onclick="fetchAbsensiSiswa()">Cari Kelas</button>
-      </div>
-      <div id="absensiListArea" class="overflow-x-auto"></div>
-    `;
-  }
-
-  function fetchAbsensiSiswa() {
-    const kls = document.getElementById('kelasInput').value;
-    google.script.run.withSuccessHandler(res => {
-      let html = `
-        <table class="w-full text-left border-collapse">
-          <thead>
-            <tr class="bg-gray-50 border-b border-gray-200 text-xs font-semibold text-gray-600 uppercase">
-              <th class="p-3">NIS</th>
-              <th class="p-3">Nama</th>
-              <th class="p-3">Aksi</th>
-            </tr>
-          </thead>
-          <tbody class="divide-y divide-gray-200">`;
-      res.siswa.forEach(s => {
-        html += `
-          <tr>
-            <td class="p-3 text-sm text-gray-700">${s.nis}</td>
-            <td class="p-3 text-sm font-bold text-gray-800">${s.nama}</td>
-            <td class="p-3">
-              ${s.isRecorded 
-                ? `<button class="px-3 py-1 bg-gray-400 text-white text-xs rounded opacity-70 cursor-not-allowed" disabled>Tercatat</button>` 
-                : `<button class="px-3 py-1 bg-red-600 hover:bg-red-700 text-white text-xs rounded transition" onclick="submitAbsensi('${s.id}')">Catat</button>`}
-            </td>
-          </tr>`;
-      });
-      html += `</tbody></table>`;
-      document.getElementById('absensiListArea').innerHTML = html;
-    }).getSiswaAbsensi(state.tahun, kls, state.currentTab);
-  }
-
-  function submitAbsensi(siswaId) {
-    const kls = document.getElementById('kelasInput').value;
-    google.script.run.withSuccessHandler(res => {
-      alert(res.message);
-      fetchAbsensiSiswa();
-    }).processAbsensiTipe(state.currentTab, state.tahun, kls, siswaId);
-  }
-
-  // --- RENDER SISWA TABLE ---
-  function renderSiswaTable(siswa) {
-    let html = `
-      <div class="overflow-x-auto">
-        <table class="w-full text-left border-collapse">
-          <thead>
-            <tr class="bg-gray-50 border-b border-gray-200 text-xs font-semibold text-gray-600 uppercase">
-              <th class="p-3">NIS</th>
-              <th class="p-3">Nama</th>
-              <th class="p-3">Kelas</th>
-              <th class="p-3">Status</th>
-            </tr>
-          </thead>
-          <tbody class="divide-y divide-gray-200">`;
-    siswa.forEach(s => {
-      html += `
-        <tr class="hover:bg-gray-50">
-          <td class="p-3 text-sm text-gray-700">${s.nis}</td>
-          <td class="p-3 text-sm font-bold text-gray-800">${s.nama}</td>
-          <td class="p-3 text-sm text-gray-600">${s.kelas}</td>
-          <td class="p-3">
-            <span class="px-2 py-1 text-xs font-semibold text-green-800 bg-green-100 rounded-full">${s.status}</span>
-          </td>
-        </tr>`;
-    });
-    html += `</tbody></table></div>`;
-    document.getElementById('appContainer').innerHTML = html;
-  }
-
-  // --- RENDER RANKING SISWA ---
-  function renderRankingSiswa(data) {
-    let html = `
-      <div class="overflow-x-auto">
-        <table class="w-full text-left border-collapse">
-          <thead>
-            <tr class="bg-gray-50 border-b border-gray-200 text-xs font-semibold text-gray-600 uppercase">
-              <th class="p-3">Rank</th>
-              <th class="p-3">NIS</th>
-              <th class="p-3">Nama</th>
-              <th class="p-3">Kelas</th>
-              <th class="p-3">Frekuensi</th>
-              <th class="p-3">Total Poin</th>
-            </tr>
-          </thead>
-          <tbody class="divide-y divide-gray-200">`;
-    data.forEach((item, idx) => {
-      html += `
-        <tr class="hover:bg-gray-50">
-          <td class="p-3 text-sm text-gray-700">${idx+1}</td>
-          <td class="p-3 text-sm text-gray-700">${item.siswa.nis}</td>
-          <td class="p-3 text-sm font-bold text-gray-800">${item.siswa.nama}</td>
-          <td class="p-3 text-sm text-gray-600">${item.siswa.kelas}</td>
-          <td class="p-3 text-sm text-gray-700">${item.frekuensi}x</td>
-          <td class="p-3 text-sm font-bold text-red-600">${item.totalPoin}</td>
-        </tr>`;
-    });
-    html += `</tbody></table></div>`;
-    document.getElementById('appContainer').innerHTML = html;
-  }
-
-  // --- RENDER RANKING PELANGGARAN ---
-  function renderRankingPelanggaran(data) {
-    let html = `
-      <div class="overflow-x-auto">
-        <table class="w-full text-left border-collapse">
-          <thead>
-            <tr class="bg-gray-50 border-b border-gray-200 text-xs font-semibold text-gray-600 uppercase">
-              <th class="p-3">Rank</th>
-              <th class="p-3">Jenis Pelanggaran</th>
-              <th class="p-3">Poin</th>
-              <th class="p-3">Frekuensi</th>
-            </tr>
-          </thead>
-          <tbody class="divide-y divide-gray-200">`;
-    data.forEach((item, idx) => {
-      html += `
-        <tr class="hover:bg-gray-50">
-          <td class="p-3 text-sm text-gray-700">${idx+1}</td>
-          <td class="p-3 text-sm font-bold text-gray-800">${item.jenis}</td>
-          <td class="p-3 text-sm text-gray-600">+${item.poin_satuan}</td>
-          <td class="p-3 text-sm text-gray-700">${item.jumlah_kejadian}x</td>
-        </tr>`;
-    });
-    html += `</tbody></table></div>`;
-    document.getElementById('appContainer').innerHTML = html;
-  }
-
-  // --- AUTHENTICATION HANDLER ---
-  function toggleAuthModal() {
-    const modal = document.getElementById('loginModal');
-    modal.classList.toggle('hidden');
-  }
-
-  function doLogin() {
-    const u = document.getElementById('loginUser').value;
-    const p = document.getElementById('loginPass').value;
-    google.script.run.withSuccessHandler(res => {
-      if (res.success) {
-        state.user = res;
-        document.getElementById('userRoleBadge').innerText = res.username;
-        document.getElementById('btnLoginLogout').innerHTML = '<i class="bi bi-box-arrow-right"></i> Logout';
-        toggleAuthModal();
-        loadCurrentTab();
-      } else {
-        alert(res.message);
-      }
-    }).processLogin(u, p);
-  }
-</script>
+  <script src="js/config.js"></script>
+  <script src="js/api.js"></script>
+  <script src="js/auth.js"></script>
+  <script src="js/dashboard.js"></script>
 </body>
 </html>
