@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Catat Prestasi - KEPO Murid</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body class="bg-light">
+  <!-- TODO: Gunakan Navbar standar Anda di sini -->
+
+  <div class="container mt-4">
+    <div class="row justify-content-center">
+      <div class="col-md-8">
+        <div class="card shadow-sm border-0">
+          <div class="card-body p-4">
+            <h5 class="fw-bold mb-3 text-success">Pencatatan Prestasi Siswa</h5>
+            <p class="text-muted small">Prestasi akan mengurangi total poin pelanggaran siswa.</p>
+            <form id="form-catat-prestasi" onsubmit="submitCatatanPrestasi(event)">
+              
+              <div class="row mb-3">
+                <div class="col-md-6">
+                  <label class="form-label small fw-bold">Tanggal</label>
+                  <input type="date" id="input-tanggal-prestasi" class="form-control" required>
+                </div>
+                <div class="col-md-6">
+                  <label class="form-label small fw-bold">Filter Kelas</label>
+                  <input type="text" id="select-kelas-prestasi" class="form-control" placeholder="Ketik Kelas..." oninput="loadSiswaPrestasi()">
+                </div>
+              </div>
+
+              <div class="mb-4">
+                <label class="form-label small fw-bold">Pilih Siswa</label>
+                <select id="select-siswa-prestasi" class="form-select" required>
+                  <option value="">-- Pilih Siswa --</option>
+                </select>
+              </div>
+
+              <div class="mb-4">
+                <label class="form-label small fw-bold">Pilih Prestasi</label>
+                <div id="container-checkbox-prestasi" class="border rounded p-3 bg-white" style="max-height: 200px; overflow-y: auto;">
+                  <!-- Checkbox di-render via js -->
+                </div>
+              </div>
+
+              <button type="submit" class="btn btn-success w-100 py-2 fw-bold">Simpan Catatan Prestasi</button>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="js/config.js"></script>
+  <script src="js/api.js"></script>
+  <script src="js/auth.js"></script>
+  <script src="js/input-prestasi.js"></script> <!-- Script JS Baru -->
+</body>
+</html>
