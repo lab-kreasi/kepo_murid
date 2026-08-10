@@ -9,48 +9,7 @@
 <body class="bg-light">
 
   <!-- Navbar -->
-  <nav class="navbar navbar-expand-lg navbar-dark bg-dark mb-4">
-    <div class="container">
-      <a class="navbar-brand fw-bold" href="index.html">KEPO Murid</a>
-      <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
-        <span class="navbar-toggler-icon"></span>
-      </button>
-      <div class="collapse navbar-collapse" id="navbarNav">
-        <ul class="navbar-nav me-auto">
-          <li class="nav-item"><a class="nav-link active" href="index.html">Dashboard</a></li>
-          
-          <!-- Dropdown Pelanggaran -->
-          <li class="nav-item dropdown">
-            <a class="nav-link dropdown-toggle" href="#" id="pelanggaranDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-              Pelanggaran
-            </a>
-            <ul class="dropdown-menu">
-              <li><a class="dropdown-item" href="input-pelanggaran.html">Catat Pelanggaran</a></li>
-              <li><a class="dropdown-item" href="jenis-pelanggaran.html">Jenis Pelanggaran</a></li>
-            </ul>
-          </li>
-
-          <!-- Dropdown Prestasi -->
-          <li class="nav-item dropdown">
-            <a class="nav-link dropdown-toggle" href="#" id="prestasiDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-              Prestasi
-            </a>
-            <ul class="dropdown-menu">
-              <li><a class="dropdown-item" href="input-prestasi.html">Catat Prestasi</a></li>
-              <li><a class="dropdown-item" href="jenis-prestasi.html">Jenis Prestasi</a></li>
-            </ul>
-          </li>
-
-          <li class="nav-item"><a class="nav-link" href="siswa.html">Data Siswa</a></li>
-          <li class="nav-item"><a class="nav-link" href="laporan.html">Laporan</a></li>
-        </ul>
-        <div class="d-flex align-items-center text-white gap-3">
-          <span id="nav-user-name" class="small fw-semibold"></span>
-          <button class="btn btn-outline-light btn-sm" onclick="Auth.logout()">Logout</button>
-        </div>
-      </div>
-    </div>
-  </nav>
+  <div id="toolbar-container"></div>
 
   <div class="container">
     <div class="d-flex justify-content-between align-items-center mb-4">
@@ -126,6 +85,7 @@
   <script src="js/config.js"></script>
   <script src="js/api.js"></script>
   <script src="js/auth.js"></script>
+  <script src="js/components.js"></script>
   <script src="js/dashboard.js"></script>
 </body>
 </html>
