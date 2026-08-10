@@ -18,9 +18,30 @@
       <div class="collapse navbar-collapse" id="navbarNav">
         <ul class="navbar-nav me-auto">
           <li class="nav-item"><a class="nav-link active" href="index.html">Dashboard</a></li>
-          <li class="nav-item"><a class="nav-link" href="input-pelanggaran.html">Catat Pelanggaran</a></li>
+          
+          <!-- Dropdown Pelanggaran -->
+          <li class="nav-item dropdown">
+            <a class="nav-link dropdown-toggle" href="#" id="pelanggaranDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+              Pelanggaran
+            </a>
+            <ul class="dropdown-menu">
+              <li><a class="dropdown-item" href="input-pelanggaran.html">Catat Pelanggaran</a></li>
+              <li><a class="dropdown-item" href="jenis-pelanggaran.html">Jenis Pelanggaran</a></li>
+            </ul>
+          </li>
+
+          <!-- Dropdown Prestasi -->
+          <li class="nav-item dropdown">
+            <a class="nav-link dropdown-toggle" href="#" id="prestasiDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+              Prestasi
+            </a>
+            <ul class="dropdown-menu">
+              <li><a class="dropdown-item" href="input-prestasi.html">Catat Prestasi</a></li>
+              <li><a class="dropdown-item" href="jenis-prestasi.html">Jenis Prestasi</a></li>
+            </ul>
+          </li>
+
           <li class="nav-item"><a class="nav-link" href="siswa.html">Data Siswa</a></li>
-          <li class="nav-item"><a class="nav-link" href="jenis-pelanggaran.html">Jenis Pelanggaran</a></li>
           <li class="nav-item"><a class="nav-link" href="laporan.html">Laporan</a></li>
         </ul>
         <div class="d-flex align-items-center text-white gap-3">
@@ -36,43 +57,72 @@
       <h4 class="fw-bold m-0">Dashboard Statistik</h4>
     </div>
 
-    <!-- Ringkasan Data -->
-    <div class="row mb-4">
+    <!-- Ringkasan Catatan Hari Ini & Siswa -->
+    <div class="row g-3 mb-4">
       <div class="col-md-3">
-        <div class="card bg-primary text-white border-0 shadow-sm">
-          <div class="card-body text-center">
-            <h6 class="text-uppercase fw-bold small">Total Siswa</h6>
+        <div class="card bg-primary text-white border-0 shadow-sm h-100">
+          <div class="card-body text-center d-flex flex-column justify-content-center">
+            <h6 class="text-uppercase fw-bold small opacity-75">Total Siswa</h6>
             <h2 id="dash-total-siswa" class="fw-bold mb-0">0</h2>
           </div>
         </div>
       </div>
       <div class="col-md-3">
-        <div class="card bg-warning text-dark border-0 shadow-sm">
-          <div class="card-body text-center">
-            <h6 class="text-uppercase fw-bold small">Pelanggaran Hari Ini</h6>
+        <div class="card bg-warning text-dark border-0 shadow-sm h-100">
+          <div class="card-body text-center d-flex flex-column justify-content-center">
+            <h6 class="text-uppercase fw-bold small opacity-75">Pelanggaran Hari Ini</h6>
             <h2 id="dash-pelanggaran-hari-ini" class="fw-bold mb-0">0</h2>
           </div>
         </div>
       </div>
       <div class="col-md-3">
-        <div class="card bg-danger text-white border-0 shadow-sm">
-          <div class="card-body text-center">
-            <h6 class="text-uppercase fw-bold small">Total Poin Kumulatif</h6>
-            <h2 id="dash-total-poin" class="fw-bold mb-0">0</h2>
+        <div class="card bg-success text-white border-0 shadow-sm h-100">
+          <div class="card-body text-center d-flex flex-column justify-content-center">
+            <h6 class="text-uppercase fw-bold small opacity-75">Prestasi Hari Ini</h6>
+            <h2 id="dash-prestasi-hari-ini" class="fw-bold mb-0">0</h2>
           </div>
         </div>
       </div>
       <div class="col-md-3">
-        <div class="card bg-success text-white border-0 shadow-sm">
-          <div class="card-body text-center">
-            <h6 class="text-uppercase fw-bold small">Total Catatan</h6>
+        <div class="card bg-secondary text-white border-0 shadow-sm h-100">
+          <div class="card-body text-center d-flex flex-column justify-content-center">
+            <h6 class="text-uppercase fw-bold small opacity-75">Total Catatan</h6>
             <h2 id="dash-total-catatan" class="fw-bold mb-0">0</h2>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Rincian Akumulasi Poin -->
+    <div class="row g-3 mb-4">
+      <div class="col-md-4">
+        <div class="card border-danger border-2 shadow-sm">
+          <div class="card-body text-center">
+            <h6 class="text-uppercase text-danger fw-bold small mb-1">Total Poin Pelanggaran</h6>
+            <h3 id="dash-poin-pelanggaran" class="fw-bold text-danger mb-0">0</h3>
+          </div>
+        </div>
+      </div>
+      <div class="col-md-4">
+        <div class="card border-success border-2 shadow-sm">
+          <div class="card-body text-center">
+            <h6 class="text-uppercase text-success fw-bold small mb-1">Total Poin Prestasi (Pengurang)</h6>
+            <h3 id="dash-poin-prestasi" class="fw-bold text-success mb-0">0</h3>
+          </div>
+        </div>
+      </div>
+      <div class="col-md-4">
+        <div class="card bg-dark text-white border-0 shadow-sm">
+          <div class="card-body text-center">
+            <h6 class="text-uppercase text-warning fw-bold small mb-1">Poin Bersih Kumulatif</h6>
+            <h3 id="dash-total-poin" class="fw-bold text-warning mb-0">0</h3>
           </div>
         </div>
       </div>
     </div>
   </div>
 
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
   <script src="js/config.js"></script>
   <script src="js/api.js"></script>
   <script src="js/auth.js"></script>
