@@ -9,24 +9,7 @@
 <body class="bg-light">
 
   <!-- Navbar -->
-  <nav class="navbar navbar-expand-lg navbar-dark bg-dark mb-4">
-    <div class="container">
-      <a class="navbar-brand fw-bold" href="index.html">KEPO Murid</a>
-      <div class="collapse navbar-collapse">
-        <ul class="navbar-nav me-auto">
-          <li class="nav-item"><a class="nav-link" href="index.html">Dashboard</a></li>
-          <li class="nav-item"><a class="nav-link" href="input-pelanggaran.html">Catat Pelanggaran</a></li>
-          <li class="nav-item"><a class="nav-link" href="siswa.html">Data Siswa</a></li>
-          <li class="nav-item"><a class="nav-link active" href="jenis-pelanggaran.html">Jenis Pelanggaran</a></li>
-          <li class="nav-item"><a class="nav-link" href="laporan.html">Laporan</a></li>
-        </ul>
-        <div class="d-flex align-items-center text-white gap-3">
-          <span id="nav-user-name" class="small fw-semibold"></span>
-          <button class="btn btn-outline-light btn-sm" onclick="Auth.logout()">Logout</button>
-        </div>
-      </div>
-    </div>
-  </nav>
+  <div id="toolbar-container"></div>
 
   <div class="container">
     <div class="row">
@@ -82,6 +65,7 @@
   <script src="js/config.js"></script>
   <script src="js/api.js"></script>
   <script src="js/auth.js"></script>
+  <script src="js/components.js"></script>
   <script src="js/pelanggaran.js"></script>
 </body>
 </html>
