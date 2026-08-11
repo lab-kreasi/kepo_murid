@@ -1,7 +1,37 @@
 /**
- * Auth Module - Keamanan & Manajemen Sesi
+ * Auth Module - Keamanan & Manajemen Sesi Berdasarkan Role
  */
 const Auth = {
+  // Pemetaan Hak Akses Halaman berdasarkan Role
+  ROLE_PERMISSIONS: {
+    admin: "*", // Akses ke seluruh halaman
+    user: [
+      "index.html",
+      "input-pelanggaran.html",
+      "input-prestasi.html",
+      "siswa.html",
+      "laporan.html"
+    ],
+    piket: [
+      "index.html",
+      "input-pelanggaran.html",
+      "input-prestasi.html",
+      "laporan.html"
+    ],
+    guru: [
+      "index.html",
+      "laporan.html"
+    ]
+  },
+
+  // Halaman tujuan default per role saat login atau saat mencoba membuka halaman terlarang
+  DEFAULT_PAGE: {
+    admin: "index.html",
+    user: "input-pelanggaran.html",
+    piket: "input-pelanggaran.html",
+    guru: "laporan.html"
+  },
+
   // Simpan data user ke localStorage
   setUserSession(userData) {
     localStorage.setItem("kepo_user", JSON.stringify(userData));
@@ -19,15 +49,40 @@ const Auth = {
     window.location.href = "login.html";
   },
 
-  // Proteksi Halaman Utama (Panggil di halaman selain login.html)
+  // Mendapatkan nama file halaman saat ini (misal: "siswa.html")
+  getCurrentPage() {
+    const path = window.location.pathname;
+    const page = path.split("/").pop();
+    return page === "" ? "index.html" : page;
+  },
+
+  // Proteksi Halaman & Verifikasi Hak Akses Role
   protectPage() {
     const user = this.getUserSession();
+    
+    // 1. Jika belum login, tendang ke login.html
     if (!user) {
       window.location.href = "login.html";
       return null;
     }
 
-    // Tampilkan nama user login jika elemennya ada di HTML
+    const role = (user.role || "").toLowerCase().trim();
+    const currentPage = this.getCurrentPage();
+    const allowedPages = this.ROLE_PERMISSIONS[role];
+
+    // 2. Cek Hak Akses Halaman berdasarkan Role
+    if (allowedPages !== "*") {
+      const isAllowed = Array.isArray(allowedPages) && allowedPages.includes(currentPage);
+      
+      if (!isAllowed) {
+        const redirectTarget = this.DEFAULT_PAGE[role] || "laporan.html";
+        alert(`Akses Ditolak: Akun dengan role '${user.role}' tidak memiliki akses ke halaman ini.`);
+        window.location.href = redirectTarget;
+        return null;
+      }
+    }
+
+    // 3. Tampilkan nama user & role di navbar/header jika elemen tersedia
     const userElement = document.getElementById("nav-user-name");
     if (userElement) {
       userElement.textContent = `${user.nama_guru} (${user.role})`;
@@ -36,11 +91,13 @@ const Auth = {
     return user;
   },
 
-  // Proteksi Halaman Login (Jika sudah login, langsung lempar ke index.html)
+  // Proteksi Halaman Login (Jika sudah login, arahkan ke halaman utama role tersebut)
   redirectIfLoggedIn() {
     const user = this.getUserSession();
     if (user) {
-      window.location.href = "index.html";
+      const role = (user.role || "").toLowerCase().trim();
+      const targetPage = this.DEFAULT_PAGE[role] || "index.html";
+      window.location.href = targetPage;
     }
   },
 
