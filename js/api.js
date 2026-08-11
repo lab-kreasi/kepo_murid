@@ -8,8 +8,24 @@ const ApiService = {
    */
   async _get(action, params = {}) {
     try {
-      const urlParams = new URLSearchParams({ action, ...params });
-      const response = await fetch(`${CONFIG.API_URL}?${urlParams.toString()}`);
+      if (typeof CONFIG === 'undefined' || !CONFIG.API_URL) {
+        throw new Error("CONFIG.API_URL belum dikonfigurasi di js/config.js");
+      }
+
+      const urlParams = new URLSearchParams();
+      urlParams.append("action", action);
+
+      // Hanya tambahkan parameter yang memiliki nilai valid (bukan undefined / null / kosong)
+      Object.keys(params).forEach(key => {
+        if (params[key] !== undefined && params[key] !== null && params[key] !== '') {
+          urlParams.append(key, params[key]);
+        }
+      });
+
+      const response = await fetch(`${CONFIG.API_URL}?${urlParams.toString()}`, {
+        method: "GET",
+        redirect: "follow" // WAJIB: Google Apps Script melakukan 302 Redirect
+      });
       
       if (!response.ok) throw new Error(`HTTP Error Status: ${response.status}`);
       return await response.json();
@@ -24,9 +40,13 @@ const ApiService = {
    */
   async _post(action, payload = {}) {
     try {
+      if (typeof CONFIG === 'undefined' || !CONFIG.API_URL) {
+        throw new Error("CONFIG.API_URL belum dikonfigurasi di js/config.js");
+      }
+
       const response = await fetch(CONFIG.API_URL, {
         method: "POST",
-        // Penting: Menggunakan text/plain;charset=utf-8 untuk menghindari pembatasan CORS Preflight pada Google Apps Script
+        redirect: "follow", // WAJIB: Google Apps Script melakukan 302 Redirect
         headers: { "Content-Type": "text/plain;charset=utf-8" },
         body: JSON.stringify({ action, data: payload })
       });
@@ -40,6 +60,19 @@ const ApiService = {
   },
 
   // ==========================================
+  // GENERIK METHOD (Kompatibilitas Frontend)
+  // ==========================================
+  get: (action, params) => ApiService._get(action, params),
+  post: (payload) => {
+    // Mendukung pemanggilan API.post({ action: '...', ... }) atau API.post(action, payload)
+    if (typeof payload === 'string') {
+      return ApiService._post(payload, arguments[1] || {});
+    }
+    const { action, ...data } = payload || {};
+    return ApiService._post(action, data.data || data);
+  },
+
+  // ==========================================
   // 1. AUTHENTICATION
   // ==========================================
   login: (username, password) => 
@@ -48,7 +81,7 @@ const ApiService = {
   // ==========================================
   // 2. SISWA CONTROLLER
   // ==========================================
-  getSiswa: (tahun = CONFIG.DEFAULT_TAHUN_AJARAN, kelas = "", search = "") => 
+  getSiswa: (tahun = CONFIG?.DEFAULT_TAHUN_AJARAN, kelas = "", search = "") => 
     ApiService._get("getSiswa", { tahun, kelas, search }),
 
   addSiswa: (siswaData) => 
@@ -63,7 +96,7 @@ const ApiService = {
   // ==========================================
   // 3. JENIS PELANGGARAN CONTROLLER
   // ==========================================
-  getJenisPelanggaran: (tahun = CONFIG.DEFAULT_TAHUN_AJARAN) => 
+  getJenisPelanggaran: (tahun = CONFIG?.DEFAULT_TAHUN_AJARAN) => 
     ApiService._get("getJenisPelanggaran", { tahun }),
 
   addJenisPelanggaran: (pelanggaranData) => 
@@ -78,7 +111,7 @@ const ApiService = {
   // ==========================================
   // 4. CATATAN PELANGGARAN CONTROLLER
   // ==========================================
-  getCatatan: (tahun = CONFIG.DEFAULT_TAHUN_AJARAN, siswaId = "") => 
+  getCatatan: (tahun = CONFIG?.DEFAULT_TAHUN_AJARAN, siswaId = "") => 
     ApiService._get("getCatatan", { tahun, siswa_id: siswaId }),
 
   addCatatan: (catatanData) => 
@@ -93,9 +126,12 @@ const ApiService = {
   // ==========================================
   // 5. REPORT & DASHBOARD CONTROLLER
   // ==========================================
-  getDashboardData: (tahun = CONFIG.DEFAULT_TAHUN_AJARAN) => 
+  getDashboardData: (tahun = CONFIG?.DEFAULT_TAHUN_AJARAN) => 
     ApiService._get("getDashboardData", { tahun }),
 
-  getRankingSiswa: (tahun = CONFIG.DEFAULT_TAHUN_AJARAN, limit = "") => 
+  getRankingSiswa: (tahun = CONFIG?.DEFAULT_TAHUN_AJARAN, limit = "") => 
     ApiService._get("getRankingSiswa", { tahun, limit })
 };
+
+// Alias Global agar kompatibel jika skrip panggilan menggunakan 'API' atau 'ApiService'
+const API = ApiService;
