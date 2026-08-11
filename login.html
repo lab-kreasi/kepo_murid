@@ -20,14 +20,14 @@
       <p class="text-xs font-medium text-slate-500 mt-1">Sistem Kedisiplinan & Rekap Poin</p>
     </div>
 
-    <!-- Alert Message Container (Tampil jika username/password salah) -->
-    <div id="alert-error" class="hidden mb-5 p-3.5 rounded-xl bg-red-50 border border-red-200 text-red-600 text-xs font-semibold flex items-center gap-2.5">
-      <svg class="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+    <!-- Alert Error Message -->
+    <div id="alert-error" class="hidden mb-5 p-3.5 rounded-xl bg-red-50 border border-red-200 text-red-600 text-xs font-semibold flex items-start gap-2.5">
+      <svg class="w-4 h-4 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
       <span id="alert-error-text">Username atau password salah.</span>
     </div>
 
-    <!-- Form Login -->
-    <form id="form-login" onsubmit="handleLoginSubmit(event)" autocomplete="on">
+    <!-- Form Login (event.preventDefault() dipasang langsung di tag form) -->
+    <form id="form-login" onsubmit="event.preventDefault(); handleLoginSubmit();" autocomplete="on">
       <!-- Username Field -->
       <div class="mb-4">
         <label for="login-username" class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-2">Username</label>
@@ -55,12 +55,12 @@
     
   </div>
 
-  <!-- JavaScript Dependencies -->
-  <script src="js/config.js"></script>
-  <script src="js/api.js"></script>
-  <script src="js/auth.js"></script>
+  <!-- JavaScript Dependencies dengan relative path pasti -->
+  <script src="./js/config.js"></script>
+  <script src="./js/api.js"></script>
+  <script src="./js/auth.js"></script>
   <script>
-    // 1. Fitur Toggle Show/Hide Password
+    // 1. Fitur Toggle Password
     const passwordInput = document.getElementById("login-password");
     const togglePasswordBtn = document.getElementById("btn-toggle-password");
     
@@ -72,55 +72,51 @@
       });
     }
 
-    // 2. Handler Submit Form Login Utama
-    async function handleLoginSubmit(event) {
-      if (event) event.preventDefault(); // Mencegah reload halaman bawaan browser & hilangkan tanda '?'
-
+    // 2. Handler Login Utama
+    async function handleLoginSubmit() {
       const btn = document.getElementById("btn-login");
       const btnText = document.getElementById("btn-text");
       const alertError = document.getElementById("alert-error");
       const alertText = document.getElementById("alert-error-text");
 
-      // Sembunyikan alert error lama
+      // Reset alert
       alertError.classList.add("hidden");
 
-      // Ubah Tombol ke Mode Loading
+      // UI State Loading
       btn.disabled = true;
       btn.classList.add("opacity-80", "cursor-not-allowed");
-      btnText.innerHTML = `
-        <svg class="animate-spin h-4 w-4 text-white inline-block mr-1.5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-          <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-          <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-        </svg>
-        Memproses...
-      `;
+      btnText.innerText = "Memproses...";
 
       const username = document.getElementById("login-username").value.trim();
       const password = document.getElementById("login-password").value.trim();
 
       try {
+        // Cek apakah Auth JS berhasil dimuat
+        if (typeof Auth === "undefined") {
+          throw new Error("Sistem Auth (js/auth.js) gagal dimuat! Periksa koneksi atau lokasi file JS.");
+        }
+
         const res = await Auth.handleLogin(username, password);
 
         if (res && res.status === "success") {
-          // DETEKSI REDIRECT DINAMIS BERDASARKAN ROLE
-          // Admin -> index.html | User/Piket -> input-pelanggaran.html | Guru -> laporan.html
+          // Arahkan otomatis ke halaman sesuai role
           const user = Auth.getUserSession();
           const role = user && user.role ? String(user.role).toLowerCase().trim() : "guru";
-          const targetPage = Auth.DEFAULT_PAGE[role] || "laporan.html";
+          const targetPage = (Auth.DEFAULT_PAGE && Auth.DEFAULT_PAGE[role]) ? Auth.DEFAULT_PAGE[role] : "laporan.html";
           
           window.location.href = targetPage;
         } else {
-          // Tampilkan Notifikasi Error
-          alertText.textContent = res ? res.message : "Username atau password salah.";
+          // Jika username/password salah atau dikembalikan backend
+          alertText.textContent = res ? (res.message || "Username atau password salah!") : "Gagal terhubung ke server.";
           alertError.classList.remove("hidden");
           
-          // Kembalikan Tombol ke Mode Normal
           btn.disabled = false;
           btn.classList.remove("opacity-80", "cursor-not-allowed");
           btnText.innerText = "Masuk";
         }
       } catch (err) {
-        alertText.textContent = "Terjadi kesalahan jaringan/sistem. Silakan coba lagi.";
+        console.error("Login Exception:", err);
+        alertText.textContent = err.message || "Terjadi kesalahan sistem/jaringan. Silakan coba lagi.";
         alertError.classList.remove("hidden");
         
         btn.disabled = false;
