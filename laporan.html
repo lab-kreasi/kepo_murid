@@ -23,13 +23,19 @@
     <!-- Header Controls -->
     <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8 pb-4 border-b border-slate-200">
       <div>
-        <h1 class="text-2xl font-bold text-slate-900 tracking-tight">Laporan Akumulasi Pelanggaran Siswa</h1>
-        <p class="text-sm text-slate-500 font-medium mt-0.5">Rekapitulasi total poin dan frekuensi pelanggaran siswa.</p>
+        <h1 class="text-2xl font-bold text-slate-900 tracking-tight">Laporan Akumulasi Poin Siswa</h1>
+        <p class="text-sm text-slate-500 font-medium mt-0.5">Rekapitulasi perbandingan poin pelanggaran, prestasi, dan total akumulasi poin.</p>
       </div>
 
       <!-- Filter & Export Action Buttons -->
       <div class="flex flex-wrap items-center gap-2.5 no-print w-full sm:w-auto">
-        <select id="filter-limit" onchange="loadLaporanRanking()" class="px-3 py-2 bg-white border border-slate-300 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none text-xs font-semibold text-slate-700 shadow-sm transition">
+        <!-- Filter Kelas -->
+        <select id="filter-kelas-laporan" onchange="renderLaporanTable()" class="px-3 py-2 bg-white border border-slate-300 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none text-xs font-semibold text-slate-700 shadow-sm transition">
+          <option value="">Semua Kelas</option>
+        </select>
+
+        <!-- Filter Top Limit -->
+        <select id="filter-limit" onchange="renderLaporanTable()" class="px-3 py-2 bg-white border border-slate-300 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none text-xs font-semibold text-slate-700 shadow-sm transition">
           <option value="">Tampilkan Semua</option>
           <option value="10">Top 10</option>
           <option value="20">Top 20</option>
@@ -56,15 +62,18 @@
     <!-- Table Card Container -->
     <div class="bg-white rounded-2xl shadow-sm border border-slate-200 p-6 overflow-hidden card-box">
       <div class="overflow-x-auto">
-        <table class="w-full text-left border-collapse text-sm">
+        <table class="w-full text-left border-collapse text-sm whitespace-nowrap">
           <thead>
             <tr class="bg-slate-50 border-b border-slate-200 text-slate-500 uppercase text-[11px] font-bold tracking-wider">
-              <th class="py-3.5 px-4 rounded-l-xl text-center w-20">Peringkat</th>
-              <th class="py-3.5 px-4">NIS</th>
+              <th class="py-3.5 px-4 rounded-l-xl text-center w-16">Peringkat</th>
+              <th class="py-3.5 px-4">NIS / NISN</th>
               <th class="py-3.5 px-4">Nama Siswa</th>
-              <th class="py-3.5 px-4">Kelas</th>
+              <th class="py-3.5 px-4 text-center">Kelas</th>
               <th class="py-3.5 px-4 text-center">Frekuensi Pelanggaran</th>
-              <th class="py-3.5 px-4 rounded-r-xl text-center">Total Poin</th>
+              <th class="py-3.5 px-4 text-center text-red-600">Total Poin Pelanggaran</th>
+              <th class="py-3.5 px-4 text-center">Frekuensi Prestasi</th>
+              <th class="py-3.5 px-4 text-center text-emerald-600">Total Poin Prestasi</th>
+              <th class="py-3.5 px-4 rounded-r-xl text-center">Akumulasi Poin</th>
             </tr>
           </thead>
           <tbody id="tbody-laporan" class="divide-y divide-slate-100 text-slate-700 font-medium">
