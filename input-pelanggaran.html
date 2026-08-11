@@ -6,48 +6,66 @@
   <title>Catat Pelanggaran - KEPO Murid</title>
   <script src="https://cdn.tailwindcss.com"></script>
 </head>
-<body class="bg-slate-100 text-slate-800 font-sans antialiased min-h-screen flex">
+<body class="bg-slate-100 text-slate-800 font-sans antialiased min-h-screen flex flex-col md:flex-row relative overflow-x-hidden">
 
-  <!-- Sidebar Container (Di-render otomatis via js/components.js) -->
-  <aside id="sidebar-container" class="w-64 flex-shrink-0"></aside>
+  <!-- Mobile Top Bar (Hanya muncul di HP / Layar Kecil) -->
+  <header class="md:hidden bg-white border-b border-slate-200 px-4 py-3 flex items-center justify-between sticky top-0 z-30 shadow-sm">
+    <div class="flex items-center gap-3">
+      <button id="mobile-menu-btn" class="p-2 rounded-xl bg-slate-100 text-slate-700 hover:bg-slate-200 focus:outline-none transition">
+        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path></svg>
+      </button>
+      <span class="font-bold text-slate-900 text-base">KEPO Murid</span>
+    </div>
+    <span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold bg-amber-50 text-amber-700 border border-amber-200/60">
+      Pelanggaran
+    </span>
+  </header>
+
+  <!-- Overlay Latar Belakang Dark/Blur saat Sidebar Mobile Terbuka -->
+  <div id="sidebar-overlay" class="fixed inset-0 bg-slate-900/40 backdrop-blur-sm z-40 hidden md:hidden transition-opacity duration-300"></div>
+
+  <!-- Sidebar Container (Slide-in di Mobile, Permanent di Desktop via js/components.js) -->
+  <aside id="sidebar-container" class="fixed md:sticky top-0 inset-y-0 left-0 z-50 w-64 h-screen bg-white border-r border-slate-200/80 transform -translate-x-full md:translate-x-0 transition-transform duration-300 ease-in-out flex-shrink-0 overflow-y-auto">
+    <!-- Konten sidebar akan di-render otomatis via js/components.js -->
+  </aside>
 
   <!-- Main Content Area -->
-  <main class="flex-1 p-6 md:p-8 min-w-0">
-    <!-- Header -->
-    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8 pb-4 border-b border-slate-200">
+  <main class="flex-1 p-4 sm:p-6 lg:p-8 min-w-0 w-full">
+    <!-- Header Page -->
+    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-6 sm:mb-8 pb-4 border-b border-slate-200">
       <div>
-        <h1 class="text-2xl font-bold text-slate-900 tracking-tight">Pencatatan Pelanggaran Siswa</h1>
-        <p class="text-sm text-slate-500 font-medium mt-0.5">Formulir input pelanggaran kedisiplinan siswa.</p>
+        <h1 class="text-xl sm:text-2xl font-bold text-slate-900 tracking-tight">Pencatatan Pelanggaran Siswa</h1>
+        <p class="text-xs sm:text-sm text-slate-500 font-medium mt-0.5">Formulir input pelanggaran kedisiplinan siswa.</p>
       </div>
-      <a href="index.html" class="inline-flex items-center gap-2 px-4 py-2 bg-slate-200 hover:bg-slate-300 text-slate-700 text-sm font-semibold rounded-xl transition w-fit">
+      <a href="index.html" class="inline-flex items-center gap-2 px-3.5 py-2 bg-slate-200 hover:bg-slate-300 text-slate-700 text-xs sm:text-sm font-semibold rounded-xl transition w-fit">
         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path></svg>
         <span>Kembali ke Dashboard</span>
       </a>
     </div>
 
     <!-- Form Card Container -->
-    <div class="max-w-3xl mx-auto bg-white rounded-2xl shadow-sm border border-slate-200 p-6 md:p-8">
+    <div class="max-w-3xl mx-auto bg-white rounded-2xl shadow-sm border border-slate-200/80 p-4 sm:p-6 md:p-8">
       <form id="form-catat-lengkap" onsubmit="submitFullCatatan(event)">
         
         <!-- Form Grid: Tanggal & Filter Kelas -->
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-5 mb-5">
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-5 mb-4 sm:mb-5">
           <!-- Tanggal -->
           <div>
             <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-2">Tanggal</label>
-            <input type="date" id="input-tanggal" class="w-full px-4 py-2.5 bg-slate-50 border border-slate-300 rounded-xl focus:ring-2 focus:ring-red-500 focus:border-red-500 outline-none transition text-sm text-slate-800" required>
+            <input type="date" id="input-tanggal" class="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-300 rounded-xl focus:ring-2 focus:ring-red-500 focus:border-red-500 outline-none transition text-xs sm:text-sm text-slate-800" required>
           </div>
         
           <!-- Filter Kelas (Dropdown Otomatis) -->
           <div>
             <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-2">Pilih Kelas</label>
-            <select id="select-kelas" onchange="onKelasChange()" class="w-full px-4 py-2.5 bg-slate-50 border border-slate-300 rounded-xl focus:ring-2 focus:ring-red-500 focus:border-red-500 outline-none transition text-sm text-slate-800 cursor-pointer">
+            <select id="select-kelas" onchange="onKelasChange()" class="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-300 rounded-xl focus:ring-2 focus:ring-red-500 focus:border-red-500 outline-none transition text-xs sm:text-sm text-slate-800 cursor-pointer">
               <option value="">-- Memuat Kelas... --</option>
             </select>
           </div>
         </div>
 
         <!-- Smart Searchbox Pilih Siswa -->
-        <div class="mb-5 relative" id="siswa-searchbox-container">
+        <div class="mb-4 sm:mb-5 relative" id="siswa-searchbox-container">
           <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-2">
             Pilih Siswa <span class="text-slate-400 font-normal lowercase">(ketik nama / NISN)</span>
           </label>
@@ -59,7 +77,7 @@
           <div class="relative">
             <input type="text" 
                    id="input-search-siswa" 
-                   class="w-full px-4 py-2.5 bg-slate-50 border border-slate-300 rounded-xl focus:ring-2 focus:ring-red-500 focus:border-red-500 outline-none transition text-sm text-slate-800 pr-10" 
+                   class="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-300 rounded-xl focus:ring-2 focus:ring-red-500 focus:border-red-500 outline-none transition text-xs sm:text-sm text-slate-800 pr-10" 
                    placeholder="Ketik nama atau NISN siswa..." 
                    autocomplete="off"
                    oninput="onSiswaSearchInput(this.value)"
@@ -78,23 +96,48 @@
         </div>
 
         <!-- Pilih Pelanggaran -->
-        <div class="mb-6">
+        <div class="mb-5 sm:mb-6">
           <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-2">
             Pilih Pelanggaran <span class="text-slate-400 font-normal lowercase">(bisa pilih lebih dari satu)</span>
           </label>
-          <div id="container-checkbox-pelanggaran" class="border border-slate-300 rounded-xl p-4 bg-slate-50 max-h-60 overflow-y-auto space-y-2 text-sm text-slate-700">
+          <div id="container-checkbox-pelanggaran" class="border border-slate-300 rounded-xl p-3.5 sm:p-4 bg-slate-50 max-h-60 overflow-y-auto space-y-2 text-xs sm:text-sm text-slate-700">
             <!-- Checkbox di-render via input.js -->
           </div>
         </div>
 
         <!-- Submit Button -->
-        <button type="submit" class="w-full py-3 px-6 rounded-xl bg-red-600 hover:bg-red-700 text-white font-bold shadow-md shadow-red-500/20 transition duration-200 cursor-pointer text-sm">
+        <button type="submit" class="w-full py-3 px-6 rounded-xl bg-red-600 hover:bg-red-700 text-white font-bold shadow-md shadow-red-500/20 transition duration-200 cursor-pointer text-xs sm:text-sm">
           Simpan Catatan Pelanggaran
         </button>
 
       </form>
     </div>
   </main>
+
+  <!-- Script JS Interaktivitas Drawer & Mobile Toggle -->
+  <script>
+    document.addEventListener("DOMContentLoaded", () => {
+      const mobileMenuBtn = document.getElementById("mobile-menu-btn");
+      const sidebar = document.getElementById("sidebar-container");
+      const overlay = document.getElementById("sidebar-overlay");
+
+      function toggleSidebar() {
+        const isHidden = sidebar.classList.contains("-translate-x-full");
+        if (isHidden) {
+          sidebar.classList.remove("-translate-x-full");
+          overlay.classList.remove("hidden");
+        } else {
+          sidebar.classList.add("-translate-x-full");
+          overlay.classList.add("hidden");
+        }
+      }
+
+      if (mobileMenuBtn && sidebar && overlay) {
+        mobileMenuBtn.addEventListener("click", toggleSidebar);
+        overlay.addEventListener("click", toggleSidebar);
+      }
+    });
+  </script>
 
   <!-- Script Files -->
   <script src="js/config.js"></script>
