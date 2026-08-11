@@ -29,26 +29,52 @@
     <div class="max-w-3xl mx-auto bg-white rounded-2xl shadow-sm border border-slate-200 p-6 md:p-8">
       <form id="form-catat-lengkap" onsubmit="submitFullCatatan(event)">
         
+        <!-- Form Grid: Tanggal & Filter Kelas -->
         <div class="grid grid-cols-1 md:grid-cols-2 gap-5 mb-5">
           <!-- Tanggal -->
           <div>
             <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-2">Tanggal</label>
             <input type="date" id="input-tanggal" class="w-full px-4 py-2.5 bg-slate-50 border border-slate-300 rounded-xl focus:ring-2 focus:ring-red-500 focus:border-red-500 outline-none transition text-sm text-slate-800" required>
           </div>
-
-          <!-- Filter Kelas -->
+        
+          <!-- Filter Kelas (Dropdown Otomatis) -->
           <div>
-            <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-2">Filter Kelas</label>
-            <input type="text" id="select-kelas" class="w-full px-4 py-2.5 bg-slate-50 border border-slate-300 rounded-xl focus:ring-2 focus:ring-red-500 focus:border-red-500 outline-none transition text-sm text-slate-800" placeholder="Ketik Kelas untuk memfilter..." oninput="loadMasterSiswa()">
+            <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-2">Pilih Kelas</label>
+            <select id="select-kelas" onchange="onKelasChange()" class="w-full px-4 py-2.5 bg-slate-50 border border-slate-300 rounded-xl focus:ring-2 focus:ring-red-500 focus:border-red-500 outline-none transition text-sm text-slate-800 cursor-pointer">
+              <option value="">-- Memuat Kelas... --</option>
+            </select>
           </div>
         </div>
 
-        <!-- Pilih Siswa -->
-        <div class="mb-5">
-          <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-2">Pilih Siswa</label>
-          <select id="select-siswa" class="w-full px-4 py-2.5 bg-slate-50 border border-slate-300 rounded-xl focus:ring-2 focus:ring-red-500 focus:border-red-500 outline-none transition text-sm text-slate-800" required>
-            <option value="">-- Pilih Siswa --</option>
-          </select>
+        <!-- Smart Searchbox Pilih Siswa -->
+        <div class="mb-5 relative" id="siswa-searchbox-container">
+          <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-2">
+            Pilih Siswa <span class="text-slate-400 font-normal lowercase">(ketik nama / NISN)</span>
+          </label>
+        
+          <!-- Input Tersembunyi untuk Form Submit -->
+          <input type="hidden" id="select-siswa" required>
+        
+          <!-- Input Teks Search -->
+          <div class="relative">
+            <input type="text" 
+                   id="input-search-siswa" 
+                   class="w-full px-4 py-2.5 bg-slate-50 border border-slate-300 rounded-xl focus:ring-2 focus:ring-red-500 focus:border-red-500 outline-none transition text-sm text-slate-800 pr-10" 
+                   placeholder="Ketik nama atau NISN siswa..." 
+                   autocomplete="off"
+                   oninput="onSiswaSearchInput(this.value)"
+                   onfocus="showSiswaDropdown()">
+            
+            <!-- Tombol Clear (X) -->
+            <button type="button" id="btn-clear-siswa" onclick="clearSelectedSiswa()" class="hidden absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 focus:outline-none">
+              <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+            </button>
+          </div>
+        
+          <!-- Popup List Hasil Pencarian (Dropdown Custom) -->
+          <div id="dropdown-siswa-results" class="hidden absolute z-30 left-0 right-0 mt-1 bg-white border border-slate-200 rounded-xl shadow-xl max-h-60 overflow-y-auto divide-y divide-slate-100">
+            <!-- Di-render otomatis via input.js -->
+          </div>
         </div>
 
         <!-- Pilih Pelanggaran -->
