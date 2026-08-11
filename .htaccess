@@ -1,18 +1,19 @@
 RewriteEngine On
 
-# Jangan redirect jika request berupa POST (agar data form login tidak hilang)
-RewriteCond %{REQUEST_METHOD} !POST
+# 1. ABAIKAN REWRITE jika file/folder fisik memang ada (seperti js/auth.js, css/style.css, api/)
+RewriteCond %{REQUEST_FILENAME} -f [OR]
+RewriteCond %{REQUEST_FILENAME} -d
+RewriteRule ^ - [L]
 
-# 1. Hapus 'index.html' dari URL
-RewriteCond %{THE_REQUEST} ^[A-Z]{3,9}\ /([^/]+/)*index\.html\ HTTP/
-RewriteRule ^(.*)index\.html$ /$1 [R=301,L]
+# 2. Hapus 'index.html' dari URL jika diakses langsung
+RewriteCond %{THE_REQUEST} ^[A-Z]{3,9}\ /(.*)/index\.html\ HTTP/
+RewriteRule ^(.*)/index\.html$ /$1 [R=301,L]
 
-# 2. Redirect .html ke Clean URL (Hanya untuk request GET)
+# 3. Redirect URL berakhiran .html ke Clean URL (Hanya untuk request GET)
 RewriteCond %{REQUEST_METHOD} !POST
 RewriteCond %{THE_REQUEST} ^[A-Z]{3,9}\ /(.*)\.html\ HTTP/
 RewriteRule ^(.*)\.html$ /$1 [R=301,L]
 
-# 3. Internal Rewrite: Petakan Clean URL ke file .html fisik
-RewriteCond %{REQUEST_FILENAME} !-d
+# 4. Internal Rewrite: Petakan Clean URL (misal: /login) ke file .html fisik
 RewriteCond %{REQUEST_FILENAME}\.html -f
 RewriteRule ^(.*)$ $1.html [L]
