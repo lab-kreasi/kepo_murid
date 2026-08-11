@@ -1,14 +1,18 @@
 RewriteEngine On
 
-# 1. Hapus 'index.html' dari URL (Mengubah domain.com/index.html menjadi domain.com/)
-RewriteCond %{THE_REQUEST} ^[A-Z]{3,9}\ /index\.html\ HTTP/
-RewriteRule ^index\.html$ / [R=301,L]
+# Jangan redirect jika request berupa POST (agar data form login tidak hilang)
+RewriteCond %{REQUEST_METHOD} !POST
 
-# 2. Hapus '.html' dari URL secara otomatis saat diakses pengguna
+# 1. Hapus 'index.html' dari URL
+RewriteCond %{THE_REQUEST} ^[A-Z]{3,9}\ /([^/]+/)*index\.html\ HTTP/
+RewriteRule ^(.*)index\.html$ /$1 [R=301,L]
+
+# 2. Redirect .html ke Clean URL (Hanya untuk request GET)
+RewriteCond %{REQUEST_METHOD} !POST
 RewriteCond %{THE_REQUEST} ^[A-Z]{3,9}\ /(.*)\.html\ HTTP/
 RewriteRule ^(.*)\.html$ /$1 [R=301,L]
 
-# 3. Baca file .html secara internal tanpa menampilkan ekstensi di address bar
+# 3. Internal Rewrite: Petakan Clean URL ke file .html fisik
 RewriteCond %{REQUEST_FILENAME} !-d
 RewriteCond %{REQUEST_FILENAME}\.html -f
 RewriteRule ^(.*)$ $1.html [L]
