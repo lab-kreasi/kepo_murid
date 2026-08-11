@@ -79,8 +79,9 @@ const ApiService = {
 
   // ==========================================
   // 2. SISWA CONTROLLER
+  // Default 'tahun' diubah ke "" agar tidak memblokir pencarian master siswa
   // ==========================================
-  getSiswa: (tahun = CONFIG?.DEFAULT_TAHUN_AJARAN, kelas = "", search = "") => 
+  getSiswa: (tahun = "", kelas = "", search = "") => 
     ApiService._get("getSiswa", { tahun, kelas, search }),
 
   addSiswa: (siswaData) => 
@@ -94,8 +95,9 @@ const ApiService = {
 
   // ==========================================
   // 3. JENIS PELANGGARAN CONTROLLER
+  // Default 'tahun' diubah ke "" agar master jenis pelanggaran selalu tampil
   // ==========================================
-  getJenisPelanggaran: (tahun = CONFIG?.DEFAULT_TAHUN_AJARAN) => 
+  getJenisPelanggaran: (tahun = "") => 
     ApiService._get("getJenisPelanggaran", { tahun }),
 
   addJenisPelanggaran: (pelanggaranData) => 
@@ -133,8 +135,9 @@ const ApiService = {
 
   // ==========================================
   // 6. JENIS PRESTASI CONTROLLER
+  // Default 'tahun' diubah ke ""
   // ==========================================
-  getJenisPrestasi: (tahun = CONFIG?.DEFAULT_TAHUN_AJARAN) => 
+  getJenisPrestasi: (tahun = "") => 
     ApiService._get("getJenisPrestasi", { tahun }),
 
   addJenisPrestasi: (prestasiData) => 
