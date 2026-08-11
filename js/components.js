@@ -1,20 +1,15 @@
 /**
  * js/components.js
- * Injeksi Sidebar UI secara otomatis & deteksi halaman aktif
+ * Injeksi Sidebar UI secara otomatis
  */
-
-document.addEventListener("DOMContentLoaded", () => {
-  renderSidebar();
-});
 
 function renderSidebar() {
   const container = document.getElementById("sidebar-container");
   if (!container) return;
 
-  // Mengambil nama file halaman saat ini untuk highlighting menu aktif
+  // Deteksi halaman aktif
   const currentPath = window.location.pathname.split("/").pop() || "index.html";
 
-  // Helper function untuk menentukan class active
   const getMenuClass = (pageName) => {
     const isActive = currentPath === pageName || (pageName === 'index.html' && currentPath === '');
     if (isActive) {
@@ -23,7 +18,7 @@ function renderSidebar() {
     return "flex items-center gap-3 px-4 py-2.5 rounded-xl hover:bg-slate-800 hover:text-white text-slate-300 font-medium transition";
   };
 
-  const sidebarHTML = `
+  container.innerHTML = `
     <div class="h-screen w-64 bg-slate-900 text-slate-300 flex flex-col justify-between fixed left-0 top-0 z-50 border-r border-slate-800 shadow-xl">
       <div>
         <!-- Logo & Title -->
@@ -86,7 +81,7 @@ function renderSidebar() {
         </nav>
       </div>
 
-      <!-- Logout Section -->
+      <!-- Logout Button -->
       <div class="p-4 border-t border-slate-800">
         <button onclick="handleLogout()" class="w-full flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-slate-800 hover:bg-red-600/20 hover:text-red-400 text-slate-300 font-medium transition text-sm">
           <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"></path></svg>
@@ -95,8 +90,6 @@ function renderSidebar() {
       </div>
     </div>
   `;
-
-  container.innerHTML = sidebarHTML;
 }
 
 function handleLogout() {
@@ -105,4 +98,11 @@ function handleLogout() {
   } else {
     window.location.href = "login.html";
   }
+}
+
+// Menjamin renderSidebar dipanggil terlepas dari waktu muat DOM
+if (document.readyState === "loading") {
+  document.addEventListener("DOMContentLoaded", renderSidebar);
+} else {
+  renderSidebar();
 }
