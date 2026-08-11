@@ -63,10 +63,9 @@ const ApiService = {
   // GENERIK METHOD (Kompatibilitas Frontend)
   // ==========================================
   get: (action, params) => ApiService._get(action, params),
-  post: (payload) => {
-    // Mendukung pemanggilan API.post({ action: '...', ... }) atau API.post(action, payload)
+  post: (payload, extraData = {}) => {
     if (typeof payload === 'string') {
-      return ApiService._post(payload, arguments[1] || {});
+      return ApiService._post(payload, extraData);
     }
     const { action, ...data } = payload || {};
     return ApiService._post(action, data.data || data);
@@ -130,11 +129,10 @@ const ApiService = {
     ApiService._get("getDashboardData", { tahun }),
 
   getRankingSiswa: (tahun = CONFIG?.DEFAULT_TAHUN_AJARAN, limit = "") => 
-    ApiService._get("getRankingSiswa", { tahun, limit })
-};
+    ApiService._get("getRankingSiswa", { tahun, limit }),
 
-// ==========================================
-  // JENIS PRESTASI CONTROLLER
+  // ==========================================
+  // 6. JENIS PRESTASI CONTROLLER
   // ==========================================
   getJenisPrestasi: (tahun = CONFIG?.DEFAULT_TAHUN_AJARAN) => 
     ApiService._get("getJenisPrestasi", { tahun }),
@@ -146,7 +144,8 @@ const ApiService = {
     ApiService._post("updateJenisPrestasi", { id, ...prestasiData }),
 
   deleteJenisPrestasi: (id) => 
-    ApiService._post("deleteJenisPrestasi", { id }),
+    ApiService._post("deleteJenisPrestasi", { id })
+};
 
 // Alias Global agar kompatibel jika skrip panggilan menggunakan 'API' atau 'ApiService'
 const API = ApiService;
