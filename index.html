@@ -8,127 +8,171 @@
 </head>
 <body class="bg-slate-100 text-slate-800 font-sans antialiased min-h-screen flex">
 
-  <!-- Sidebar Terpasang Langsung (Hardcoded) -->
-  <aside id="sidebar-container" class="w-64 flex-shrink-0">
-    <div class="h-screen w-64 bg-slate-900 text-slate-300 flex flex-col justify-between fixed left-0 top-0 z-50 border-r border-slate-800 shadow-xl">
-      <div>
-        <div class="p-6 flex items-center gap-3 border-b border-slate-800">
-          <div class="w-10 h-10 rounded-xl bg-blue-600 flex items-center justify-center text-white font-extrabold text-xl shadow-lg shadow-blue-500/30">
-            K
-          </div>
-          <div>
-            <h1 class="text-base font-bold text-white leading-tight">KEPO Murid</h1>
-            <p class="text-xs text-slate-400">Sistem Kedisiplinan</p>
-          </div>
-        </div>
+  <!-- Sidebar Container (Di-render otomatis via js/components.js) -->
+  <aside id="sidebar-container" class="w-64 flex-shrink-0"></aside>
 
-        <nav class="p-4 space-y-1 text-sm">
-          <a href="index.html" class="flex items-center gap-3 px-4 py-2.5 rounded-xl bg-blue-600 text-white font-medium shadow-md transition">
-            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"></path></svg>
-            <span>Dashboard</span>
+  <!-- Main Content Dashboard -->
+  <main class="flex-1 p-6 md:p-8 min-w-0">
+    
+    <!-- Header Dashboard -->
+    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8 pb-4 border-b border-slate-200">
+      <div>
+        <h1 class="text-2xl font-bold text-slate-900 tracking-tight">Dashboard Kedisiplinan</h1>
+        <p class="text-sm text-slate-500 font-medium mt-0.5">Ringkasan aktivitas poin kedisiplinan dan prestasi siswa secara real-time.</p>
+      </div>
+      <div class="flex items-center gap-3">
+        <span class="inline-flex items-center px-3 py-1.5 rounded-xl text-xs font-semibold bg-blue-50 text-blue-700 border border-blue-200/60">
+          <span class="w-2 h-2 rounded-full bg-blue-600 mr-2 animate-pulse"></span>
+          Sistem Aktif
+        </span>
+      </div>
+    </div>
+
+    <!-- Ringkasan Utama (4 Cards Grid) -->
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5 mb-6">
+      
+      <!-- Total Siswa -->
+      <div class="bg-white rounded-2xl p-5 border border-slate-200/80 shadow-sm flex items-center gap-4">
+        <div class="w-12 h-12 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center flex-shrink-0">
+          <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"></path></svg>
+        </div>
+        <div>
+          <p class="text-xs font-bold uppercase tracking-wider text-slate-400">Total Siswa</p>
+          <h2 id="dash-total-siswa" class="text-2xl font-black text-slate-900 mt-0.5">0</h2>
+        </div>
+      </div>
+
+      <!-- Pelanggaran Hari Ini -->
+      <div class="bg-white rounded-2xl p-5 border border-slate-200/80 shadow-sm flex items-center gap-4">
+        <div class="w-12 h-12 rounded-xl bg-amber-50 text-amber-600 flex items-center justify-center flex-shrink-0">
+          <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>
+        </div>
+        <div>
+          <p class="text-xs font-bold uppercase tracking-wider text-slate-400">Pelanggaran Hari Ini</p>
+          <h2 id="dash-pelanggaran-hari-ini" class="text-2xl font-black text-slate-900 mt-0.5">0</h2>
+        </div>
+      </div>
+
+      <!-- Prestasi Hari Ini -->
+      <div class="bg-white rounded-2xl p-5 border border-slate-200/80 shadow-sm flex items-center gap-4">
+        <div class="w-12 h-12 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center flex-shrink-0">
+          <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z"></path></svg>
+        </div>
+        <div>
+          <p class="text-xs font-bold uppercase tracking-wider text-slate-400">Prestasi Hari Ini</p>
+          <h2 id="dash-prestasi-hari-ini" class="text-2xl font-black text-slate-900 mt-0.5">0</h2>
+        </div>
+      </div>
+
+      <!-- Total Catatan -->
+      <div class="bg-white rounded-2xl p-5 border border-slate-200/80 shadow-sm flex items-center gap-4">
+        <div class="w-12 h-12 rounded-xl bg-slate-100 text-slate-600 flex items-center justify-center flex-shrink-0">
+          <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
+        </div>
+        <div>
+          <p class="text-xs font-bold uppercase tracking-wider text-slate-400">Total Catatan</p>
+          <h2 id="dash-total-catatan" class="text-2xl font-black text-slate-900 mt-0.5">0</h2>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- Poin Akumulasi Cards (3 Cols) -->
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-5 mb-8">
+      
+      <div class="bg-gradient-to-br from-red-500 to-rose-600 text-white rounded-2xl p-6 shadow-md shadow-red-500/10 flex flex-col justify-between">
+        <div class="flex justify-between items-center mb-3">
+          <span class="text-xs font-bold uppercase tracking-wider opacity-90">Total Poin Pelanggaran</span>
+          <span class="p-2 bg-white/20 rounded-lg">
+            <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 17h8m0 0V9m0 8l-8-8-4 4-6-6"></path></svg>
+          </span>
+        </div>
+        <h3 id="dash-poin-pelanggaran" class="text-4xl font-extrabold tracking-tight">0</h3>
+      </div>
+
+      <div class="bg-gradient-to-br from-emerald-500 to-teal-600 text-white rounded-2xl p-6 shadow-md shadow-emerald-500/10 flex flex-col justify-between">
+        <div class="flex justify-between items-center mb-3">
+          <span class="text-xs font-bold uppercase tracking-wider opacity-90">Poin Prestasi (Pengurang)</span>
+          <span class="p-2 bg-white/20 rounded-lg">
+            <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"></path></svg>
+          </span>
+        </div>
+        <h3 id="dash-poin-prestasi" class="text-4xl font-extrabold tracking-tight">0</h3>
+      </div>
+
+      <div class="bg-slate-900 text-white rounded-2xl p-6 shadow-md shadow-slate-900/20 flex flex-col justify-between">
+        <div class="flex justify-between items-center mb-3">
+          <span class="text-xs font-bold uppercase tracking-wider text-amber-400">Poin Bersih Kumulatif</span>
+          <span class="p-2 bg-slate-800 rounded-lg">
+            <svg class="w-5 h-5 text-amber-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path></svg>
+          </span>
+        </div>
+        <h3 id="dash-total-poin" class="text-4xl font-extrabold tracking-tight text-amber-400">0</h3>
+      </div>
+
+    </div>
+
+    <!-- Layout Bawah: Akses Cepat & Catatan Informasi -->
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+      
+      <!-- Akses Cepat Navigasi -->
+      <div class="bg-white rounded-2xl p-6 border border-slate-200/80 shadow-sm lg:col-span-1">
+        <h3 class="text-base font-bold text-slate-900 mb-4 pb-2 border-b border-slate-100">Aksi Cepat</h3>
+        <div class="space-y-3">
+          <a href="input-pelanggaran.html" class="flex items-center justify-between p-3.5 rounded-xl bg-amber-50 hover:bg-amber-100/80 text-amber-900 font-semibold transition border border-amber-200/60 text-sm">
+            <span class="flex items-center gap-3">
+              <svg class="w-5 h-5 text-amber-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg>
+              Input Pelanggaran Baru
+            </span>
+            <svg class="w-4 h-4 text-amber-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path></svg>
           </a>
 
-          <div class="pt-3">
-            <div class="px-4 text-[11px] font-semibold text-slate-500 uppercase tracking-wider mb-1">Pelanggaran</div>
-            <a href="input-pelanggaran.html" class="flex items-center gap-3 px-4 py-2.5 rounded-xl hover:bg-slate-800 hover:text-white text-slate-300 font-medium transition">
-              <svg class="w-5 h-5 text-amber-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>
-              <span>Input Pelanggaran</span>
-            </a>
-            <a href="jenis-pelanggaran.html" class="flex items-center gap-3 px-4 py-2.5 rounded-xl hover:bg-slate-800 hover:text-white text-slate-300 font-medium transition">
-              <svg class="w-5 h-5 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 10h16M4 14h16M4 18h16"></path></svg>
-              <span>Master Pelanggaran</span>
-            </a>
-          </div>
+          <a href="input-prestasi.html" class="flex items-center justify-between p-3.5 rounded-xl bg-emerald-50 hover:bg-emerald-100/80 text-emerald-900 font-semibold transition border border-emerald-200/60 text-sm">
+            <span class="flex items-center gap-3">
+              <svg class="w-5 h-5 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg>
+              Input Prestasi Baru
+            </span>
+            <svg class="w-4 h-4 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path></svg>
+          </a>
 
-          <div class="pt-3">
-            <div class="px-4 text-[11px] font-semibold text-slate-500 uppercase tracking-wider mb-1">Prestasi</div>
-            <a href="input-prestasi.html" class="flex items-center gap-3 px-4 py-2.5 rounded-xl hover:bg-slate-800 hover:text-white text-slate-300 font-medium transition">
-              <svg class="w-5 h-5 text-emerald-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z"></path></svg>
-              <span>Input Prestasi</span>
-            </a>
-            <a href="jenis-prestasi.html" class="flex items-center gap-3 px-4 py-2.5 rounded-xl hover:bg-slate-800 hover:text-white text-slate-300 font-medium transition">
-              <svg class="w-5 h-5 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 10h16M4 14h16M4 18h16"></path></svg>
-              <span>Master Prestasi</span>
-            </a>
-          </div>
-
-          <div class="pt-3">
-            <div class="px-4 text-[11px] font-semibold text-slate-500 uppercase tracking-wider mb-1">Lainnya</div>
-            <a href="siswa.html" class="flex items-center gap-3 px-4 py-2.5 rounded-xl hover:bg-slate-800 hover:text-white text-slate-300 font-medium transition">
-              <svg class="w-5 h-5 text-indigo-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"></path></svg>
-              <span>Data Siswa</span>
-            </a>
-            <a href="laporan.html" class="flex items-center gap-3 px-4 py-2.5 rounded-xl hover:bg-slate-800 hover:text-white text-slate-300 font-medium transition">
-              <svg class="w-5 h-5 text-sky-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
-              <span>Laporan</span>
-            </a>
-          </div>
-        </nav>
+          <a href="siswa.html" class="flex items-center justify-between p-3.5 rounded-xl bg-indigo-50 hover:bg-indigo-100/80 text-indigo-900 font-semibold transition border border-indigo-200/60 text-sm">
+            <span class="flex items-center gap-3">
+              <svg class="w-5 h-5 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"></path></svg>
+              Kelola Data Siswa
+            </span>
+            <svg class="w-4 h-4 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path></svg>
+          </a>
+        </div>
       </div>
 
-      <div class="p-4 border-t border-slate-800">
-        <button onclick="Auth.logout()" class="w-full flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-slate-800 hover:bg-red-600/20 hover:text-red-400 text-slate-300 font-medium transition text-sm">
-          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"></path></svg>
-          <span>Keluar</span>
-        </button>
+      <!-- Ringkasan Sistem / Ketentuan Poin -->
+      <div class="bg-white rounded-2xl p-6 border border-slate-200/80 shadow-sm lg:col-span-2">
+        <h3 class="text-base font-bold text-slate-900 mb-3 pb-2 border-b border-slate-100">Petunjuk Ketentuan Poin</h3>
+        <ul class="space-y-2.5 text-xs text-slate-600 leading-relaxed">
+          <li class="flex items-start gap-2.5">
+            <span class="w-2 h-2 rounded-full bg-red-500 mt-1.5 flex-shrink-0"></span>
+            <span><strong>Poin Pelanggaran:</strong> Bertambah setiap kali siswa melakukan pelanggaran tata tertib sekolah.</span>
+          </li>
+          <li class="flex items-start gap-2.5">
+            <span class="w-2 h-2 rounded-full bg-emerald-500 mt-1.5 flex-shrink-0"></span>
+            <span><strong>Poin Prestasi:</strong> Bertindak sebagai pengurang poin pelanggaran kumulatif siswa.</span>
+          </li>
+          <li class="flex items-start gap-2.5">
+            <span class="w-2 h-2 rounded-full bg-amber-500 mt-1.5 flex-shrink-0"></span>
+            <span><strong>Poin Bersih Kumulatif:</strong> Dihitung dari <code class="bg-slate-100 px-1.5 py-0.5 rounded text-slate-800">Total Pelanggaran - Total Prestasi</code>. Poin tidak akan bernilai minus (minimal 0).</span>
+          </li>
+        </ul>
       </div>
-    </div>
-  </aside>
 
-  <!-- Content Dashboard -->
-  <main class="flex-1 p-6 md:p-10 ml-0 md:ml-64 transition-all">
-    <div class="flex justify-between items-center mb-8 pb-4 border-b border-slate-200">
-      <div>
-        <h1 class="text-2xl font-bold text-slate-900">Dashboard Statistik</h1>
-        <p class="text-sm text-slate-500">Ringkasan aktivitas poin kedisiplinan dan prestasi siswa.</p>
-      </div>
     </div>
 
-    <!-- Statistik Cards -->
-    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5 mb-8">
-      <div class="bg-blue-600 text-white rounded-2xl p-6 shadow-sm flex flex-col justify-between">
-        <p class="text-xs font-semibold tracking-wider uppercase opacity-80 mb-1">Total Siswa</p>
-        <h2 id="dash-total-siswa" class="text-4xl font-extrabold">0</h2>
-      </div>
-
-      <div class="bg-amber-500 text-white rounded-2xl p-6 shadow-sm flex flex-col justify-between">
-        <p class="text-xs font-semibold tracking-wider uppercase opacity-80 mb-1">Pelanggaran Hari Ini</p>
-        <h2 id="dash-pelanggaran-hari-ini" class="text-4xl font-extrabold">0</h2>
-      </div>
-
-      <div class="bg-emerald-600 text-white rounded-2xl p-6 shadow-sm flex flex-col justify-between">
-        <p class="text-xs font-semibold tracking-wider uppercase opacity-80 mb-1">Prestasi Hari Ini</p>
-        <h2 id="dash-prestasi-hari-ini" class="text-4xl font-extrabold">0</h2>
-      </div>
-
-      <div class="bg-slate-700 text-white rounded-2xl p-6 shadow-sm flex flex-col justify-between">
-        <p class="text-xs font-semibold tracking-wider uppercase opacity-80 mb-1">Total Catatan</p>
-        <h2 id="dash-total-catatan" class="text-4xl font-extrabold">0</h2>
-      </div>
-    </div>
-
-    <!-- Poin Cards -->
-    <div class="grid grid-cols-1 md:grid-cols-3 gap-5 mb-8">
-      <div class="bg-white border-2 border-red-500/30 rounded-2xl p-6 shadow-sm text-center">
-        <p class="text-xs font-bold tracking-wider uppercase text-red-600 mb-1">Total Poin Pelanggaran</p>
-        <h3 id="dash-poin-pelanggaran" class="text-3xl font-black text-red-600">0</h3>
-      </div>
-
-      <div class="bg-white border-2 border-emerald-500/30 rounded-2xl p-6 shadow-sm text-center">
-        <p class="text-xs font-bold tracking-wider uppercase text-emerald-600 mb-1">Total Poin Prestasi (Pengurang)</p>
-        <h3 id="dash-poin-prestasi" class="text-3xl font-black text-emerald-600">0</h3>
-      </div>
-
-      <div class="bg-slate-900 rounded-2xl p-6 shadow-sm text-center">
-        <p class="text-xs font-bold tracking-wider uppercase text-amber-400 mb-1">Poin Bersih Kumulatif</p>
-        <h3 id="dash-total-poin" class="text-3xl font-black text-amber-400">0</h3>
-      </div>
-    </div>
   </main>
 
+  <!-- Script JS -->
   <script src="js/config.js"></script>
   <script src="js/api.js"></script>
   <script src="js/auth.js"></script>
+  <script src="js/components.js"></script>
   <script src="js/dashboard.js"></script>
 </body>
 </html>
