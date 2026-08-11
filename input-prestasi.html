@@ -17,7 +17,7 @@
     <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8 pb-4 border-b border-slate-200">
       <div>
         <h1 class="text-2xl font-bold text-slate-900 tracking-tight">Pencatatan Prestasi Siswa</h1>
-        <p class="text-sm text-emerald-600 font-medium mt-0.5">Prestasi akan mengurangi total poin pelanggaran siswa.</p>
+        <p class="text-sm text-emerald-600 font-medium mt-0.5">Prestasi akan menambah poin kebaikan / mengurangi akumulasi pelanggaran siswa.</p>
       </div>
       <a href="index.html" class="inline-flex items-center gap-2 px-4 py-2 bg-slate-200 hover:bg-slate-300 text-slate-700 text-sm font-semibold rounded-xl transition w-fit">
         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path></svg>
@@ -36,28 +36,53 @@
             <input type="date" id="input-tanggal-prestasi" class="w-full px-4 py-2.5 bg-slate-50 border border-slate-300 rounded-xl focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 outline-none transition text-sm text-slate-800" required>
           </div>
 
-          <!-- Filter Kelas -->
+          <!-- Dropdown Filter Kelas -->
           <div>
-            <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-2">Filter Kelas</label>
-            <input type="text" id="select-kelas-prestasi" class="w-full px-4 py-2.5 bg-slate-50 border border-slate-300 rounded-xl focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 outline-none transition text-sm text-slate-800" placeholder="Ketik Kelas..." oninput="loadSiswaPrestasi()">
+            <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-2">Pilih Kelas</label>
+            <select id="select-kelas-prestasi" onchange="onKelasChangePrestasi()" class="w-full px-4 py-2.5 bg-slate-50 border border-slate-300 rounded-xl focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 outline-none transition text-sm text-slate-800 cursor-pointer">
+              <option value="">-- Memuat Kelas... --</option>
+            </select>
           </div>
         </div>
 
-        <!-- Pilih Siswa -->
-        <div class="mb-5">
-          <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-2">Pilih Siswa</label>
-          <select id="select-siswa-prestasi" class="w-full px-4 py-2.5 bg-slate-50 border border-slate-300 rounded-xl focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 outline-none transition text-sm text-slate-800" required>
-            <option value="">-- Pilih Siswa --</option>
-          </select>
+        <!-- Smart Searchbox Pilih Siswa -->
+        <div class="mb-5 relative" id="siswa-prestasi-searchbox-container">
+          <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-2">
+            Pilih Siswa <span class="text-slate-400 font-normal lowercase">(ketik nama / NISN)</span>
+          </label>
+
+          <!-- Input Tersembunyi untuk ID Siswa -->
+          <input type="hidden" id="select-siswa-prestasi" required>
+
+          <!-- Input Teks Search -->
+          <div class="relative">
+            <input type="text" 
+                   id="input-search-siswa-prestasi" 
+                   class="w-full px-4 py-2.5 bg-slate-50 border border-slate-300 rounded-xl focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 outline-none transition text-sm text-slate-800 pr-10" 
+                   placeholder="Ketik nama atau NISN siswa..." 
+                   autocomplete="off"
+                   oninput="onSiswaSearchInput(this.value)"
+                   onfocus="showSiswaDropdown()">
+            
+            <!-- Tombol Clear (X) -->
+            <button type="button" id="btn-clear-siswa-prestasi" onclick="clearSelectedSiswa()" class="hidden absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 focus:outline-none">
+              <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+            </button>
+          </div>
+
+          <!-- Popup List Hasil Pencarian -->
+          <div id="dropdown-siswa-prestasi-results" class="hidden absolute z-30 left-0 right-0 mt-1 bg-white border border-slate-200 rounded-xl shadow-xl max-h-60 overflow-y-auto divide-y divide-slate-100">
+            <!-- Di-render otomatis via js -->
+          </div>
         </div>
 
-        <!-- Pilih Prestasi -->
+        <!-- Pilih Jenis Prestasi -->
         <div class="mb-6">
           <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-2">
-            Pilih Prestasi
+            Pilih Prestasi <span class="text-slate-400 font-normal lowercase">(bisa pilih lebih dari satu)</span>
           </label>
           <div id="container-checkbox-prestasi" class="border border-slate-300 rounded-xl p-4 bg-slate-50 max-h-60 overflow-y-auto space-y-2 text-sm text-slate-700">
-            <!-- Checkbox di-render via js -->
+            <!-- Checkbox di-render via input-prestasi.js -->
           </div>
         </div>
 
