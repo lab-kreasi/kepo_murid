@@ -50,26 +50,32 @@ const Auth = {
   },
 
   // Mendapatkan nama file halaman saat ini dengan bersih
-  // Mendapatkan nama file HTML aktif secara presisi (Mendukung Clean URL)
+  // Mendapatkan nama file HTML aktif secara presisi (Mendukung Sub-folder & Clean URL)
     getCurrentPage() {
-      let path = window.location.pathname;
+      let path = window.location.pathname.split("?")[0].split("#")[0];
       
-      # Ambil bagian akhir dari path URL
-      let page = path.split("/").filter(Boolean).pop() || "index.html";
-      
-      // Hapus query parameter (?...) dan hash (#...)
-      page = page.split("?")[0].split("#")[0];
+      // Jika path berakhiran '/', pasti membuka index.html
+      if (path.endsWith("/")) return "index.html";
   
-      // Jika URL berupa '/' atau kosong, kembalikan 'index.html'
-      if (page === "" || page === "/") return "index.html";
+      let lastSegment = path.split("/").filter(Boolean).pop() || "index.html";
   
-      // Jika URL tidak memiliki .html (misal: 'laporan' atau 'siswa'), 
-      // otomatis tambahkan '.html' agar cocok dengan ROLE_PERMISSIONS
-      if (!page.includes(".")) {
-        page += ".html";
+      // Daftar nama halaman resmi aplikasi
+      const validPages = [
+        "index", "login", "siswa", "laporan", 
+        "input-pelanggaran", "input-prestasi", 
+        "jenis-pelanggaran", "jenis-prestasi"
+      ];
+  
+      // Bersihkan ekstensi .html jika ada
+      let cleanName = lastSegment.replace(/\.html$/i, "").toLowerCase();
+  
+      // Jika segmen terakhir adalah halaman resmi, kembalikan nama dengan ekstensi .html
+      if (validPages.includes(cleanName)) {
+        return cleanName + ".html";
       }
   
-      return page;
+      // Jika segmen terakhir adalah nama folder (misal: 'kepo_murid'), anggap index.html
+      return "index.html";
     },
 
   // Proteksi Halaman & Verifikasi Hak Akses Role
