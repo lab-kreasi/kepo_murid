@@ -50,13 +50,27 @@ const Auth = {
   },
 
   // Mendapatkan nama file halaman saat ini dengan bersih
-  getCurrentPage() {
-    const path = window.location.pathname;
-    let page = path.split("/").pop().toLowerCase().trim();
-    if (!page || page === "") page = "index.html";
-    page = page.split("?")[0].split("#")[0]; // Bersihkan query & hash
-    return page;
-  },
+  // Mendapatkan nama file HTML aktif secara presisi (Mendukung Clean URL)
+    getCurrentPage() {
+      let path = window.location.pathname;
+      
+      # Ambil bagian akhir dari path URL
+      let page = path.split("/").filter(Boolean).pop() || "index.html";
+      
+      // Hapus query parameter (?...) dan hash (#...)
+      page = page.split("?")[0].split("#")[0];
+  
+      // Jika URL berupa '/' atau kosong, kembalikan 'index.html'
+      if (page === "" || page === "/") return "index.html";
+  
+      // Jika URL tidak memiliki .html (misal: 'laporan' atau 'siswa'), 
+      // otomatis tambahkan '.html' agar cocok dengan ROLE_PERMISSIONS
+      if (!page.includes(".")) {
+        page += ".html";
+      }
+  
+      return page;
+    },
 
   // Proteksi Halaman & Verifikasi Hak Akses Role
   protectPage() {
