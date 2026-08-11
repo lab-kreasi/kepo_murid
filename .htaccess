@@ -1,0 +1,14 @@
+RewriteEngine On
+
+# 1. Hapus 'index.html' dari URL (Mengubah domain.com/index.html menjadi domain.com/)
+RewriteCond %{THE_REQUEST} ^[A-Z]{3,9}\ /index\.html\ HTTP/
+RewriteRule ^index\.html$ / [R=301,L]
+
+# 2. Hapus '.html' dari URL secara otomatis saat diakses pengguna
+RewriteCond %{THE_REQUEST} ^[A-Z]{3,9}\ /(.*)\.html\ HTTP/
+RewriteRule ^(.*)\.html$ /$1 [R=301,L]
+
+# 3. Baca file .html secara internal tanpa menampilkan ekstensi di address bar
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteCond %{REQUEST_FILENAME}\.html -f
+RewriteRule ^(.*)$ $1.html [L]
