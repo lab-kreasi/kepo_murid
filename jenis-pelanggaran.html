@@ -50,7 +50,7 @@
 
             <!-- Action Buttons -->
             <div class="flex gap-2">
-              <button type="submit" class="flex-1 py-2.5 px-4 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-xl shadow-md shadow-blue-500/20 transition duration-200 cursor-pointer text-sm">
+              <button type="submit" id="btn-submit-pelanggaran" class="flex-1 py-2.5 px-4 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-xl shadow-md shadow-blue-500/20 transition duration-200 cursor-pointer text-sm">
                 Simpan
               </button>
               <button type="button" onclick="resetPelanggaranForm()" class="py-2.5 px-4 bg-slate-200 hover:bg-slate-300 text-slate-700 font-semibold rounded-xl transition duration-200 cursor-pointer text-sm">
@@ -75,7 +75,12 @@
                 </tr>
               </thead>
               <tbody id="tbody-pelanggaran" class="divide-y divide-slate-100 text-slate-700 font-medium">
-                <!-- Data di-render via js/pelanggaran.js -->
+                <tr>
+                  <td colspan="4" class="py-8 text-center text-slate-400 font-normal">
+                    <div class="inline-block animate-spin rounded-full h-6 w-6 border-2 border-blue-600 border-t-transparent mb-2"></div>
+                    <p class="text-xs">Membaca data dari spreadsheet...</p>
+                  </td>
+                </tr>
               </tbody>
             </table>
           </div>
