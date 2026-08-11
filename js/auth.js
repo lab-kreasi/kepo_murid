@@ -24,7 +24,7 @@ const Auth = {
     ]
   },
 
-  // Halaman tujuan default per role saat login atau saat mencoba membuka halaman terlarang
+  // Halaman tujuan default per role saat login atau mencoba membuka halaman terlarang
   DEFAULT_PAGE: {
     admin: "index.html",
     user: "input-pelanggaran.html",
@@ -49,11 +49,13 @@ const Auth = {
     window.location.href = "login.html";
   },
 
-  // Mendapatkan nama file halaman saat ini (misal: "siswa.html")
+  // Mendapatkan nama file halaman saat ini dengan bersih
   getCurrentPage() {
     const path = window.location.pathname;
-    const page = path.split("/").pop();
-    return page === "" ? "index.html" : page;
+    let page = path.split("/").pop().toLowerCase().trim();
+    if (!page || page === "") page = "index.html";
+    page = page.split("?")[0].split("#")[0]; // Bersihkan query & hash
+    return page;
   },
 
   // Proteksi Halaman & Verifikasi Hak Akses Role
@@ -76,22 +78,22 @@ const Auth = {
       
       if (!isAllowed) {
         const redirectTarget = this.DEFAULT_PAGE[role] || "laporan.html";
-        alert(`Akses Ditolak: Akun dengan role '${user.role}' tidak memiliki akses ke halaman ini.`);
+        alert(`Akses Ditolak: Akun '${user.nama_guru || user.username}' (${user.role}) tidak memiliki akses ke halaman '${currentPage}'.`);
         window.location.href = redirectTarget;
         return null;
       }
     }
 
-    // 3. Tampilkan nama user & role di navbar/header jika elemen tersedia
+    // 3. Tampilkan nama user & role jika elemen UI tersedia
     const userElement = document.getElementById("nav-user-name");
     if (userElement) {
-      userElement.textContent = `${user.nama_guru} (${user.role})`;
+      userElement.textContent = `${user.nama_guru} (${user.role.toUpperCase()})`;
     }
 
     return user;
   },
 
-  // Proteksi Halaman Login (Jika sudah login, arahkan ke halaman utama role tersebut)
+  // Proteksi Halaman Login (Jika sudah login, lempar ke halaman default role)
   redirectIfLoggedIn() {
     const user = this.getUserSession();
     if (user) {
@@ -114,3 +116,13 @@ const Auth = {
     return res;
   }
 };
+
+// EKSEKUSI PROTEKSI OTOMATIS SAAT DOM SELESAI DIMUAT
+document.addEventListener("DOMContentLoaded", () => {
+  const currentPage = Auth.getCurrentPage();
+  if (currentPage === "login.html") {
+    Auth.redirectIfLoggedIn();
+  } else {
+    Auth.protectPage();
+  }
+});
