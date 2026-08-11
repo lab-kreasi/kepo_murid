@@ -29,7 +29,7 @@
     </div>
 
     <!-- Ringkasan Utama (4 Cards Grid) -->
-    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5 mb-6">
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5 mb-8">
       
       <!-- Total Siswa -->
       <div class="bg-white rounded-2xl p-5 border border-slate-200/80 shadow-sm flex items-center gap-4">
@@ -42,25 +42,25 @@
         </div>
       </div>
 
-      <!-- Pelanggaran Hari Ini -->
+      <!-- Pelanggaran Tahun Ajaran Ini -->
       <div class="bg-white rounded-2xl p-5 border border-slate-200/80 shadow-sm flex items-center gap-4">
         <div class="w-12 h-12 rounded-xl bg-amber-50 text-amber-600 flex items-center justify-center flex-shrink-0">
           <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>
         </div>
         <div>
-          <p class="text-xs font-bold uppercase tracking-wider text-slate-400">Pelanggaran Hari Ini</p>
-          <h2 id="dash-pelanggaran-hari-ini" class="text-2xl font-black text-slate-900 mt-0.5">0</h2>
+          <p class="text-xs font-bold uppercase tracking-wider text-slate-400">Pelanggaran Tahun Ajaran Ini</p>
+          <h2 id="dash-pelanggaran-tahun-ini" class="text-2xl font-black text-slate-900 mt-0.5">0</h2>
         </div>
       </div>
 
-      <!-- Prestasi Hari Ini -->
+      <!-- Prestasi Tahun Ajaran Ini -->
       <div class="bg-white rounded-2xl p-5 border border-slate-200/80 shadow-sm flex items-center gap-4">
         <div class="w-12 h-12 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center flex-shrink-0">
           <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z"></path></svg>
         </div>
         <div>
-          <p class="text-xs font-bold uppercase tracking-wider text-slate-400">Prestasi Hari Ini</p>
-          <h2 id="dash-prestasi-hari-ini" class="text-2xl font-black text-slate-900 mt-0.5">0</h2>
+          <p class="text-xs font-bold uppercase tracking-wider text-slate-400">Prestasi Tahun Ajaran Ini</p>
+          <h2 id="dash-prestasi-tahun-ini" class="text-2xl font-black text-slate-900 mt-0.5">0</h2>
         </div>
       </div>
 
@@ -73,41 +73,6 @@
           <p class="text-xs font-bold uppercase tracking-wider text-slate-400">Total Catatan</p>
           <h2 id="dash-total-catatan" class="text-2xl font-black text-slate-900 mt-0.5">0</h2>
         </div>
-      </div>
-
-    </div>
-
-    <!-- Poin Akumulasi Cards (3 Cols) -->
-    <div class="grid grid-cols-1 md:grid-cols-3 gap-5 mb-8">
-      
-      <div class="bg-gradient-to-br from-red-500 to-rose-600 text-white rounded-2xl p-6 shadow-md shadow-red-500/10 flex flex-col justify-between">
-        <div class="flex justify-between items-center mb-3">
-          <span class="text-xs font-bold uppercase tracking-wider opacity-90">Total Poin Pelanggaran</span>
-          <span class="p-2 bg-white/20 rounded-lg">
-            <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 17h8m0 0V9m0 8l-8-8-4 4-6-6"></path></svg>
-          </span>
-        </div>
-        <h3 id="dash-poin-pelanggaran" class="text-4xl font-extrabold tracking-tight">0</h3>
-      </div>
-
-      <div class="bg-gradient-to-br from-emerald-500 to-teal-600 text-white rounded-2xl p-6 shadow-md shadow-emerald-500/10 flex flex-col justify-between">
-        <div class="flex justify-between items-center mb-3">
-          <span class="text-xs font-bold uppercase tracking-wider opacity-90">Poin Prestasi (Pengurang)</span>
-          <span class="p-2 bg-white/20 rounded-lg">
-            <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"></path></svg>
-          </span>
-        </div>
-        <h3 id="dash-poin-prestasi" class="text-4xl font-extrabold tracking-tight">0</h3>
-      </div>
-
-      <div class="bg-slate-900 text-white rounded-2xl p-6 shadow-md shadow-slate-900/20 flex flex-col justify-between">
-        <div class="flex justify-between items-center mb-3">
-          <span class="text-xs font-bold uppercase tracking-wider text-amber-400">Poin Bersih Kumulatif</span>
-          <span class="p-2 bg-slate-800 rounded-lg">
-            <svg class="w-5 h-5 text-amber-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path></svg>
-          </span>
-        </div>
-        <h3 id="dash-total-poin" class="text-4xl font-extrabold tracking-tight text-amber-400">0</h3>
       </div>
 
     </div>
@@ -147,19 +112,19 @@
 
       <!-- Ringkasan Sistem / Ketentuan Poin -->
       <div class="bg-white rounded-2xl p-6 border border-slate-200/80 shadow-sm lg:col-span-2">
-        <h3 class="text-base font-bold text-slate-900 mb-3 pb-2 border-b border-slate-100">Petunjuk Ketentuan Poin</h3>
+        <h3 class="text-base font-bold text-slate-900 mb-3 pb-2 border-b border-slate-100">Petunjuk Ringkas System Kedisiplinan</h3>
         <ul class="space-y-2.5 text-xs text-slate-600 leading-relaxed">
           <li class="flex items-start gap-2.5">
-            <span class="w-2 h-2 rounded-full bg-red-500 mt-1.5 flex-shrink-0"></span>
-            <span><strong>Poin Pelanggaran:</strong> Bertambah setiap kali siswa melakukan pelanggaran tata tertib sekolah.</span>
+            <span class="w-2 h-2 rounded-full bg-amber-500 mt-1.5 flex-shrink-0"></span>
+            <span><strong>Catatan Pelanggaran:</strong> Rekapitulasi frekuensi pelanggaran tata tertib siswa pada tahun ajaran berjalan.</span>
           </li>
           <li class="flex items-start gap-2.5">
             <span class="w-2 h-2 rounded-full bg-emerald-500 mt-1.5 flex-shrink-0"></span>
-            <span><strong>Poin Prestasi:</strong> Bertindak sebagai pengurang poin pelanggaran kumulatif siswa.</span>
+            <span><strong>Catatan Prestasi:</strong> Rekapitulasi capaian dan pencapaian prestasi siswa pada tahun ajaran berjalan.</span>
           </li>
           <li class="flex items-start gap-2.5">
-            <span class="w-2 h-2 rounded-full bg-amber-500 mt-1.5 flex-shrink-0"></span>
-            <span><strong>Poin Bersih Kumulatif:</strong> Dihitung dari <code class="bg-slate-100 px-1.5 py-0.5 rounded text-slate-800">Total Pelanggaran - Total Prestasi</code>. Poin tidak akan bernilai minus (minimal 0).</span>
+            <span class="w-2 h-2 rounded-full bg-blue-500 mt-1.5 flex-shrink-0"></span>
+            <span><strong>Laporan & Ranking:</strong> Perhitungan akumulasi poin terperinci dapat dipantau langsung pada menu <a href="laporan.html" class="text-blue-600 font-semibold underline">Laporan & Ranking</a>.</span>
           </li>
         </ul>
       </div>
