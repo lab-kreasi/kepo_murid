@@ -6,21 +6,40 @@
   <title>Dashboard - KEPO Murid</title>
   <script src="https://cdn.tailwindcss.com"></script>
 </head>
-<body class="bg-slate-100 text-slate-800 font-sans antialiased min-h-screen flex">
+<body class="bg-slate-100 text-slate-800 font-sans antialiased min-h-screen flex flex-col md:flex-row relative overflow-x-hidden">
 
-  <!-- Sidebar Container (Di-render otomatis via js/components.js) -->
-  <aside id="sidebar-container" class="w-64 flex-shrink-0"></aside>
+  <!-- Mobile Top Bar (Hanya muncul di layar HP / Layar Kecil) -->
+  <header class="md:hidden bg-white border-b border-slate-200 px-4 py-3 flex items-center justify-between sticky top-0 z-30 shadow-sm">
+    <div class="flex items-center gap-3">
+      <button id="mobile-menu-btn" class="p-2 rounded-xl bg-slate-100 text-slate-700 hover:bg-slate-200 focus:outline-none transition">
+        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path></svg>
+      </button>
+      <span class="font-bold text-slate-900 text-base">KEPO Murid</span>
+    </div>
+    <span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold bg-blue-50 text-blue-700 border border-blue-200/60">
+      <span class="w-1.5 h-1.5 rounded-full bg-blue-600 mr-1.5 animate-pulse"></span>
+      Aktif
+    </span>
+  </header>
+
+  <!-- Overlay Latar Belakang Dark/Blur saat Sidebar Mobile Terbuka -->
+  <div id="sidebar-overlay" class="fixed inset-0 bg-slate-900/40 backdrop-blur-sm z-40 hidden md:hidden transition-opacity duration-300"></div>
+
+  <!-- Sidebar Container (Responsif: Slide-in di Mobile, Permanent di Desktop) -->
+  <aside id="sidebar-container" class="fixed md:sticky top-0 inset-y-0 left-0 z-50 w-64 h-screen bg-white border-r border-slate-200/80 transform -translate-x-full md:translate-x-0 transition-transform duration-300 ease-in-out flex-shrink-0 overflow-y-auto">
+    <!-- Konten sidebar akan di-render otomatis via js/components.js -->
+  </aside>
 
   <!-- Main Content Dashboard -->
-  <main class="flex-1 p-6 md:p-8 min-w-0">
+  <main class="flex-1 p-4 sm:p-6 lg:p-8 min-w-0 w-full">
     
     <!-- Header Dashboard -->
-    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8 pb-4 border-b border-slate-200">
+    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-6 sm:mb-8 pb-4 border-b border-slate-200">
       <div>
-        <h1 class="text-2xl font-bold text-slate-900 tracking-tight">Dashboard Kedisiplinan</h1>
-        <p class="text-sm text-slate-500 font-medium mt-0.5">Ringkasan aktivitas poin kedisiplinan dan prestasi siswa secara real-time.</p>
+        <h1 class="text-xl sm:text-2xl font-bold text-slate-900 tracking-tight">Dashboard Kedisiplinan</h1>
+        <p class="text-xs sm:text-sm text-slate-500 font-medium mt-0.5">Ringkasan aktivitas poin kedisiplinan dan prestasi siswa secara real-time.</p>
       </div>
-      <div class="flex items-center gap-3">
+      <div class="hidden sm:flex items-center gap-3">
         <span class="inline-flex items-center px-3 py-1.5 rounded-xl text-xs font-semibold bg-blue-50 text-blue-700 border border-blue-200/60">
           <span class="w-2 h-2 rounded-full bg-blue-600 mr-2 animate-pulse"></span>
           Sistem Aktif
@@ -29,90 +48,90 @@
     </div>
 
     <!-- Ringkasan Utama (4 Cards Grid) -->
-    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5 mb-8">
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-5 mb-6 sm:mb-8">
       
       <!-- Total Siswa -->
-      <div class="bg-white rounded-2xl p-5 border border-slate-200/80 shadow-sm flex items-center gap-4">
-        <div class="w-12 h-12 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center flex-shrink-0">
-          <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"></path></svg>
+      <div class="bg-white rounded-2xl p-4 sm:p-5 border border-slate-200/80 shadow-sm flex items-center gap-4">
+        <div class="w-10 h-10 sm:w-12 sm:h-12 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center flex-shrink-0">
+          <svg class="w-5 h-5 sm:w-6 sm:h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"></path></svg>
         </div>
         <div>
-          <p class="text-xs font-bold uppercase tracking-wider text-slate-400">Total Siswa</p>
-          <h2 id="dash-total-siswa" class="text-2xl font-black text-slate-900 mt-0.5">...</h2>
+          <p class="text-[10px] sm:text-xs font-bold uppercase tracking-wider text-slate-400">Total Siswa</p>
+          <h2 id="dash-total-siswa" class="text-xl sm:text-2xl font-black text-slate-900 mt-0.5">...</h2>
         </div>
       </div>
-    
+
       <!-- Pelanggaran Tahun Ajaran Ini -->
-      <div class="bg-white rounded-2xl p-5 border border-slate-200/80 shadow-sm flex items-center gap-4">
-        <div class="w-12 h-12 rounded-xl bg-amber-50 text-amber-600 flex items-center justify-center flex-shrink-0">
-          <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>
+      <div class="bg-white rounded-2xl p-4 sm:p-5 border border-slate-200/80 shadow-sm flex items-center gap-4">
+        <div class="w-10 h-10 sm:w-12 sm:h-12 rounded-xl bg-amber-50 text-amber-600 flex items-center justify-center flex-shrink-0">
+          <svg class="w-5 h-5 sm:w-6 sm:h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>
         </div>
         <div>
-          <p class="text-xs font-bold uppercase tracking-wider text-slate-400">Pelanggaran Tahun Ajaran Ini</p>
-          <h2 id="dash-pelanggaran-tahun-ini" class="text-2xl font-black text-slate-900 mt-0.5">...</h2>
+          <p class="text-[10px] sm:text-xs font-bold uppercase tracking-wider text-slate-400">Pelanggaran Tahun Ini</p>
+          <h2 id="dash-pelanggaran-tahun-ini" class="text-xl sm:text-2xl font-black text-slate-900 mt-0.5">...</h2>
         </div>
       </div>
-    
+
       <!-- Prestasi Tahun Ajaran Ini -->
-      <div class="bg-white rounded-2xl p-5 border border-slate-200/80 shadow-sm flex items-center gap-4">
-        <div class="w-12 h-12 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center flex-shrink-0">
-          <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z"></path></svg>
+      <div class="bg-white rounded-2xl p-4 sm:p-5 border border-slate-200/80 shadow-sm flex items-center gap-4">
+        <div class="w-10 h-10 sm:w-12 sm:h-12 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center flex-shrink-0">
+          <svg class="w-5 h-5 sm:w-6 sm:h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z"></path></svg>
         </div>
         <div>
-          <p class="text-xs font-bold uppercase tracking-wider text-slate-400">Prestasi Tahun Ajaran Ini</p>
-          <h2 id="dash-prestasi-tahun-ini" class="text-2xl font-black text-slate-900 mt-0.5">...</h2>
+          <p class="text-[10px] sm:text-xs font-bold uppercase tracking-wider text-slate-400">Prestasi Tahun Ini</p>
+          <h2 id="dash-prestasi-tahun-ini" class="text-xl sm:text-2xl font-black text-slate-900 mt-0.5">...</h2>
         </div>
       </div>
-    
+
       <!-- Total Catatan -->
-      <div class="bg-white rounded-2xl p-5 border border-slate-200/80 shadow-sm flex items-center gap-4">
-        <div class="w-12 h-12 rounded-xl bg-slate-100 text-slate-600 flex items-center justify-center flex-shrink-0">
-          <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
+      <div class="bg-white rounded-2xl p-4 sm:p-5 border border-slate-200/80 shadow-sm flex items-center gap-4">
+        <div class="w-10 h-10 sm:w-12 sm:h-12 rounded-xl bg-slate-100 text-slate-600 flex items-center justify-center flex-shrink-0">
+          <svg class="w-5 h-5 sm:w-6 sm:h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
         </div>
         <div>
-          <p class="text-xs font-bold uppercase tracking-wider text-slate-400">Total Catatan</p>
-          <h2 id="dash-total-catatan" class="text-2xl font-black text-slate-900 mt-0.5">...</h2>
+          <p class="text-[10px] sm:text-xs font-bold uppercase tracking-wider text-slate-400">Total Catatan</p>
+          <h2 id="dash-total-catatan" class="text-xl sm:text-2xl font-black text-slate-900 mt-0.5">...</h2>
         </div>
       </div>
-    
+
     </div>
 
     <!-- Layout Bawah: Akses Cepat & Catatan Informasi -->
-    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-5 sm:gap-6">
       
       <!-- Akses Cepat Navigasi -->
-      <div class="bg-white rounded-2xl p-6 border border-slate-200/80 shadow-sm lg:col-span-1">
-        <h3 class="text-base font-bold text-slate-900 mb-4 pb-2 border-b border-slate-100">Aksi Cepat</h3>
+      <div class="bg-white rounded-2xl p-5 sm:p-6 border border-slate-200/80 shadow-sm lg:col-span-1">
+        <h3 class="text-sm sm:text-base font-bold text-slate-900 mb-4 pb-2 border-b border-slate-100">Aksi Cepat</h3>
         <div class="space-y-3">
-          <a href="input-pelanggaran.html" class="flex items-center justify-between p-3.5 rounded-xl bg-amber-50 hover:bg-amber-100/80 text-amber-900 font-semibold transition border border-amber-200/60 text-sm">
-            <span class="flex items-center gap-3">
-              <svg class="w-5 h-5 text-amber-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg>
+          <a href="input-pelanggaran.html" class="flex items-center justify-between p-3 sm:p-3.5 rounded-xl bg-amber-50 hover:bg-amber-100/80 text-amber-900 font-semibold transition border border-amber-200/60 text-xs sm:text-sm">
+            <span class="flex items-center gap-2.5 sm:gap-3">
+              <svg class="w-4 h-4 sm:w-5 sm:h-5 text-amber-600 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg>
               Input Pelanggaran Baru
             </span>
-            <svg class="w-4 h-4 text-amber-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path></svg>
+            <svg class="w-4 h-4 text-amber-600 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path></svg>
           </a>
 
-          <a href="input-prestasi.html" class="flex items-center justify-between p-3.5 rounded-xl bg-emerald-50 hover:bg-emerald-100/80 text-emerald-900 font-semibold transition border border-emerald-200/60 text-sm">
-            <span class="flex items-center gap-3">
-              <svg class="w-5 h-5 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg>
+          <a href="input-prestasi.html" class="flex items-center justify-between p-3 sm:p-3.5 rounded-xl bg-emerald-50 hover:bg-emerald-100/80 text-emerald-900 font-semibold transition border border-emerald-200/60 text-xs sm:text-sm">
+            <span class="flex items-center gap-2.5 sm:gap-3">
+              <svg class="w-4 h-4 sm:w-5 sm:h-5 text-emerald-600 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg>
               Input Prestasi Baru
             </span>
-            <svg class="w-4 h-4 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path></svg>
+            <svg class="w-4 h-4 text-emerald-600 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path></svg>
           </a>
 
-          <a href="siswa.html" class="flex items-center justify-between p-3.5 rounded-xl bg-indigo-50 hover:bg-indigo-100/80 text-indigo-900 font-semibold transition border border-indigo-200/60 text-sm">
-            <span class="flex items-center gap-3">
-              <svg class="w-5 h-5 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"></path></svg>
+          <a href="siswa.html" class="flex items-center justify-between p-3 sm:p-3.5 rounded-xl bg-indigo-50 hover:bg-indigo-100/80 text-indigo-900 font-semibold transition border border-indigo-200/60 text-xs sm:text-sm">
+            <span class="flex items-center gap-2.5 sm:gap-3">
+              <svg class="w-4 h-4 sm:w-5 sm:h-5 text-indigo-600 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"></path></svg>
               Kelola Data Siswa
             </span>
-            <svg class="w-4 h-4 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path></svg>
+            <svg class="w-4 h-4 text-indigo-600 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path></svg>
           </a>
         </div>
       </div>
 
       <!-- Ringkasan Sistem / Ketentuan Poin -->
-      <div class="bg-white rounded-2xl p-6 border border-slate-200/80 shadow-sm lg:col-span-2">
-        <h3 class="text-base font-bold text-slate-900 mb-3 pb-2 border-b border-slate-100">Petunjuk Ringkas System Kedisiplinan</h3>
+      <div class="bg-white rounded-2xl p-5 sm:p-6 border border-slate-200/80 shadow-sm lg:col-span-2">
+        <h3 class="text-sm sm:text-base font-bold text-slate-900 mb-3 pb-2 border-b border-slate-100">Petunjuk Ringkas System Kedisiplinan</h3>
         <ul class="space-y-2.5 text-xs text-slate-600 leading-relaxed">
           <li class="flex items-start gap-2.5">
             <span class="w-2 h-2 rounded-full bg-amber-500 mt-1.5 flex-shrink-0"></span>
@@ -133,7 +152,32 @@
 
   </main>
 
-  <!-- Script JS -->
+  <!-- Script JS Interaktivitas Drawer & Mobile Toggle -->
+  <script>
+    document.addEventListener("DOMContentLoaded", () => {
+      const mobileMenuBtn = document.getElementById("mobile-menu-btn");
+      const sidebar = document.getElementById("sidebar-container");
+      const overlay = document.getElementById("sidebar-overlay");
+
+      function toggleSidebar() {
+        const isHidden = sidebar.classList.contains("-translate-x-full");
+        if (isHidden) {
+          sidebar.classList.remove("-translate-x-full");
+          overlay.classList.remove("hidden");
+        } else {
+          sidebar.classList.add("-translate-x-full");
+          overlay.classList.add("hidden");
+        }
+      }
+
+      if (mobileMenuBtn && sidebar && overlay) {
+        mobileMenuBtn.addEventListener("click", toggleSidebar);
+        overlay.addEventListener("click", toggleSidebar);
+      }
+    });
+  </script>
+
+  <!-- Script JS Backend Core -->
   <script src="js/config.js"></script>
   <script src="js/api.js"></script>
   <script src="js/auth.js"></script>
