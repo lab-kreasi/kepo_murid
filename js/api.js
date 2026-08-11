@@ -133,5 +133,20 @@ const ApiService = {
     ApiService._get("getRankingSiswa", { tahun, limit })
 };
 
+// ==========================================
+  // JENIS PRESTASI CONTROLLER
+  // ==========================================
+  getJenisPrestasi: (tahun = CONFIG?.DEFAULT_TAHUN_AJARAN) => 
+    ApiService._get("getJenisPrestasi", { tahun }),
+
+  addJenisPrestasi: (prestasiData) => 
+    ApiService._post("addJenisPrestasi", prestasiData),
+
+  updateJenisPrestasi: (id, prestasiData) => 
+    ApiService._post("updateJenisPrestasi", { id, ...prestasiData }),
+
+  deleteJenisPrestasi: (id) => 
+    ApiService._post("deleteJenisPrestasi", { id }),
+
 // Alias Global agar kompatibel jika skrip panggilan menggunakan 'API' atau 'ApiService'
 const API = ApiService;
