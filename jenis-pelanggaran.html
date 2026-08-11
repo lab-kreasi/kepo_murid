@@ -6,32 +6,50 @@
   <title>Jenis Pelanggaran - KEPO Murid</title>
   <script src="https://cdn.tailwindcss.com"></script>
 </head>
-<body class="bg-slate-100 text-slate-800 font-sans antialiased min-h-screen flex">
+<body class="bg-slate-100 text-slate-800 font-sans antialiased min-h-screen flex flex-col md:flex-row relative overflow-x-hidden">
 
-  <!-- Sidebar Container (Di-render otomatis via js/components.js) -->
-  <aside id="sidebar-container" class="w-64 flex-shrink-0"></aside>
+  <!-- Mobile Top Bar (Tampil khusus layar HP) -->
+  <header class="md:hidden bg-white border-b border-slate-200 px-4 py-3 flex items-center justify-between sticky top-0 z-30 shadow-sm">
+    <div class="flex items-center gap-3">
+      <button id="mobile-menu-btn" aria-label="Buka Menu" class="p-2 rounded-xl bg-slate-100 text-slate-700 hover:bg-slate-200 focus:outline-none transition">
+        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path></svg>
+      </button>
+      <span class="font-bold text-slate-900 text-base">KEPO Murid</span>
+    </div>
+    <span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold bg-blue-50 text-blue-700 border border-blue-200/60">
+      Master Data
+    </span>
+  </header>
+
+  <!-- Overlay Latar Belakang saat Sidebar Mobile Terbuka -->
+  <div id="sidebar-overlay" class="fixed inset-0 bg-slate-900/40 backdrop-blur-sm z-40 hidden md:hidden transition-opacity duration-300"></div>
+
+  <!-- Sidebar Container (Slide-in di Mobile, Permanent di Desktop) -->
+  <aside id="sidebar-container" class="fixed md:sticky top-0 inset-y-0 left-0 z-50 w-64 h-screen bg-slate-900 border-r border-slate-800 transform -translate-x-full md:translate-x-0 transition-transform duration-300 ease-in-out flex-shrink-0 overflow-y-auto">
+    <!-- Di-render otomatis via js/components.js -->
+  </aside>
 
   <!-- Main Content Area -->
-  <main class="flex-1 p-6 md:p-8 min-w-0">
-    <!-- Header -->
-    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8 pb-4 border-b border-slate-200">
+  <main class="flex-1 p-4 sm:p-6 lg:p-8 min-w-0 w-full">
+    <!-- Header Page -->
+    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-6 sm:mb-8 pb-4 border-b border-slate-200">
       <div>
-        <h1 class="text-2xl font-bold text-slate-900 tracking-tight">Master Jenis Pelanggaran</h1>
-        <p class="text-sm text-slate-500 font-medium mt-0.5">Kelola daftar jenis pelanggaran dan bobot poin pelanggaran.</p>
+        <h1 class="text-xl sm:text-2xl font-bold text-slate-900 tracking-tight">Master Jenis Pelanggaran</h1>
+        <p class="text-xs sm:text-sm text-slate-500 font-medium mt-0.5">Kelola daftar jenis pelanggaran dan bobot poin pelanggaran.</p>
       </div>
-      <a href="index.html" class="inline-flex items-center gap-2 px-4 py-2 bg-slate-200 hover:bg-slate-300 text-slate-700 text-sm font-semibold rounded-xl transition w-fit">
+      <a href="index.html" class="inline-flex items-center gap-2 px-3.5 py-2 bg-slate-200 hover:bg-slate-300 text-slate-700 text-xs sm:text-sm font-semibold rounded-xl transition w-fit">
         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path></svg>
         <span>Kembali ke Dashboard</span>
       </a>
     </div>
 
     <!-- Layout Grid (Form Input + Tabel) -->
-    <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+    <div class="grid grid-cols-1 lg:grid-cols-12 gap-5 lg:gap-6">
       
       <!-- Form Input / Edit Pelanggaran (Left Column) -->
       <div class="lg:col-span-4">
-        <div class="bg-white rounded-2xl shadow-sm border border-slate-200 p-6 sticky top-6">
-          <h2 class="text-base font-bold text-slate-900 mb-4 pb-2 border-b border-slate-100">Form Master Pelanggaran</h2>
+        <div class="bg-white rounded-2xl shadow-sm border border-slate-200/80 p-4 sm:p-6 lg:sticky lg:top-6">
+          <h2 class="text-sm sm:text-base font-bold text-slate-900 mb-4 pb-2 border-b border-slate-100">Form Master Pelanggaran</h2>
           
           <form id="form-pelanggaran" onsubmit="handleSavePelanggaran(event)">
             <input type="hidden" id="pelanggaran-id">
@@ -39,21 +57,21 @@
             <!-- Nama / Jenis Pelanggaran -->
             <div class="mb-4">
               <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-2">Nama / Jenis Pelanggaran</label>
-              <input type="text" id="pelanggaran-jenis" class="w-full px-4 py-2.5 bg-slate-50 border border-slate-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition text-sm text-slate-800" placeholder="Contoh: Datang Terlambat" required>
+              <input type="text" id="pelanggaran-jenis" class="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition text-sm text-slate-800" placeholder="Contoh: Datang Terlambat" required>
             </div>
 
             <!-- Bobot Poin -->
-            <div class="mb-6">
+            <div class="mb-5 sm:mb-6">
               <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-2">Bobot Poin</label>
-              <input type="number" id="pelanggaran-poin" class="w-full px-4 py-2.5 bg-slate-50 border border-slate-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition text-sm text-slate-800" min="1" placeholder="Contoh: 5" required>
+              <input type="number" id="pelanggaran-poin" class="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition text-sm text-slate-800" min="1" placeholder="Contoh: 5" required>
             </div>
 
             <!-- Action Buttons -->
             <div class="flex gap-2">
-              <button type="submit" id="btn-submit-pelanggaran" class="flex-1 py-2.5 px-4 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-xl shadow-md shadow-blue-500/20 transition duration-200 cursor-pointer text-sm">
+              <button type="submit" id="btn-submit-pelanggaran" class="flex-1 py-2.5 px-4 bg-blue-600 hover:bg-blue-700 active:bg-blue-800 text-white font-bold rounded-xl shadow-md shadow-blue-500/20 transition duration-200 cursor-pointer text-xs sm:text-sm">
                 Simpan
               </button>
-              <button type="button" onclick="resetPelanggaranForm()" class="py-2.5 px-4 bg-slate-200 hover:bg-slate-300 text-slate-700 font-semibold rounded-xl transition duration-200 cursor-pointer text-sm">
+              <button type="button" onclick="resetPelanggaranForm()" class="py-2.5 px-4 bg-slate-200 hover:bg-slate-300 text-slate-700 font-semibold rounded-xl transition duration-200 cursor-pointer text-xs sm:text-sm">
                 Reset
               </button>
             </div>
@@ -63,15 +81,15 @@
 
       <!-- Tabel Master Pelanggaran (Right Column) -->
       <div class="lg:col-span-8">
-        <div class="bg-white rounded-2xl shadow-sm border border-slate-200 p-6 overflow-hidden">
-          <div class="overflow-x-auto">
-            <table class="w-full text-left border-collapse text-sm">
+        <div class="bg-white rounded-2xl shadow-sm border border-slate-200/80 p-4 sm:p-6 overflow-hidden">
+          <div class="overflow-x-auto -mx-1 sm:mx-0">
+            <table class="w-full text-left border-collapse text-xs sm:text-sm">
               <thead>
-                <tr class="bg-slate-50 border-b border-slate-200 text-slate-500 uppercase text-[11px] font-bold tracking-wider">
-                  <th class="py-3.5 px-4 rounded-l-xl w-12 text-center">#</th>
-                  <th class="py-3.5 px-4">Jenis Pelanggaran</th>
-                  <th class="py-3.5 px-4 w-32 text-center">Bobot Poin</th>
-                  <th class="py-3.5 px-4 rounded-r-xl w-32 text-center">Aksi</th>
+                <tr class="bg-slate-50 border-b border-slate-200 text-slate-500 uppercase text-[10px] sm:text-[11px] font-bold tracking-wider">
+                  <th class="py-3 px-3 sm:px-4 rounded-l-xl w-10 sm:w-12 text-center">#</th>
+                  <th class="py-3 px-3 sm:px-4">Jenis Pelanggaran</th>
+                  <th class="py-3 px-3 sm:px-4 w-24 sm:w-32 text-center">Bobot Poin</th>
+                  <th class="py-3 px-3 sm:px-4 rounded-r-xl w-24 sm:w-32 text-center">Aksi</th>
                 </tr>
               </thead>
               <tbody id="tbody-pelanggaran" class="divide-y divide-slate-100 text-slate-700 font-medium">
@@ -89,6 +107,31 @@
 
     </div>
   </main>
+
+  <!-- Script Interaktivitas Drawer / Off-canvas Mobile -->
+  <script>
+    document.addEventListener("DOMContentLoaded", () => {
+      const mobileMenuBtn = document.getElementById("mobile-menu-btn");
+      const sidebar = document.getElementById("sidebar-container");
+      const overlay = document.getElementById("sidebar-overlay");
+
+      function toggleSidebar() {
+        const isHidden = sidebar.classList.contains("-translate-x-full");
+        if (isHidden) {
+          sidebar.classList.remove("-translate-x-full");
+          overlay.classList.remove("hidden");
+        } else {
+          sidebar.classList.add("-translate-x-full");
+          overlay.classList.add("hidden");
+        }
+      }
+
+      if (mobileMenuBtn && sidebar && overlay) {
+        mobileMenuBtn.addEventListener("click", toggleSidebar);
+        overlay.addEventListener("click", toggleSidebar);
+      }
+    });
+  </script>
 
   <!-- JavaScript Dependencies -->
   <script src="js/config.js"></script>
