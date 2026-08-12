@@ -12,6 +12,9 @@ const ApiService = {
     if (typeof CONFIG !== 'undefined') {
       const url = CONFIG.API_URL || CONFIG.BASE_URL;
       if (url) return url;
+    } else if (typeof window !== 'undefined' && window.CONFIG) {
+      const url = window.CONFIG.API_URL || window.CONFIG.BASE_URL;
+      if (url) return url;
     }
     throw new Error("URL API belum dikonfigurasi. Pastikan CONFIG.API_URL atau CONFIG.BASE_URL ada di js/config.js");
   },
@@ -22,16 +25,11 @@ const ApiService = {
   _getAuthCredentials() {
     try {
       // 1. Cek via Module Auth jika tersedia
-      if (typeof Auth !== 'undefined' && typeof Auth.getUserSession === 'function') {
-        const user = Auth.getUserSession();
-        if (user) {
-          return {
-            username: user.username || "",
-            password: user.password || ""
-          };
-        }
-      } else if (typeof Auth !== 'undefined' && typeof Auth.getUser === 'function') {
-        const user = Auth.getUser();
+      if (typeof Auth !== 'undefined') {
+        const user = (typeof Auth.getUserSession === 'function') 
+          ? Auth.getUserSession() 
+          : (typeof Auth.getUser === 'function' ? Auth.getUser() : null);
+        
         if (user) {
           return {
             username: user.username || "",
@@ -41,8 +39,11 @@ const ApiService = {
       }
 
       // 2. Fallback pembacaan langsung dari LocalStorage / SessionStorage
-      // Membaca dari berbagai kemungkinan kunci (user atau kepo_user)
-      const stored = localStorage.getItem("user") || sessionStorage.getItem("user") || localStorage.getItem("kepo_user") || sessionStorage.getItem("kepo_user");
+      const stored = localStorage.getItem("user") || 
+                     sessionStorage.getItem("user") || 
+                     localStorage.getItem("kepo_user") || 
+                     sessionStorage.getItem("kepo_user");
+      
       if (stored) {
         const user = JSON.parse(stored);
         return {
@@ -54,6 +55,20 @@ const ApiService = {
       console.warn("[API SERVICE] Gagal membaca kredensial sesi:", e);
     }
     return { username: "", password: "" };
+  },
+
+  /**
+   * Helper Internal untuk Parsing Respons dari Google Apps Script
+   * Mencegah crash jika GAS mengembalikan halaman HTML saat terjadi error
+   */
+  async _parseResponse(response) {
+    const textData = await response.text();
+    try {
+      return JSON.parse(textData);
+    } catch (e) {
+      console.error("[API PARSE ERROR] Respons bukan JSON yang valid:", textData.substring(0, 150));
+      throw new Error("Respons dari server tidak valid. Pastikan URL dan Izin Google Apps Script sudah benar.");
+    }
   },
 
   /**
@@ -87,7 +102,8 @@ const ApiService = {
       });
 
       if (!response.ok) throw new Error(`HTTP Error Status: ${response.status}`);
-      return await response.json();
+      return await this._parseResponse(response);
+
     } catch (error) {
       console.error(`[API GET ERROR] Action: ${action}`, error);
       return { status: "error", message: "Gagal terhubung ke server: " + error.message };
@@ -102,14 +118,20 @@ const ApiService = {
       const baseUrl = this._getApiUrl();
       const creds = this._getAuthCredentials();
 
-      // Struktur Body POST: gabungkan properti di root level & sertakan nested data agar kompatibel dengan berbagai skrip backend
+      // Menata ulang Body POST agar rapi dan kompatibel dengan backend GAS
       const requestBody = {
         action: action,
         username: payload.username || creds.username || "",
         password: payload.password || creds.password || "",
-        ...payload,
-        data: payload
+        data: payload // Tempatkan payload di dalam key data
       };
+
+      // Tambahkan properti root dari payload jika dibutuhkan backend khusus
+      Object.keys(payload).forEach(key => {
+        if (key !== 'username' && key !== 'password') {
+          requestBody[key] = payload[key];
+        }
+      });
 
       const response = await fetch(baseUrl, {
         method: "POST",
@@ -119,7 +141,8 @@ const ApiService = {
       });
 
       if (!response.ok) throw new Error(`HTTP Error Status: ${response.status}`);
-      return await response.json();
+      return await this._parseResponse(response);
+
     } catch (error) {
       console.error(`[API POST ERROR] Action: ${action}`, error);
       return { status: "error", message: "Gagal mengirim data ke server: " + error.message };
@@ -130,6 +153,7 @@ const ApiService = {
   // GENERIK METHOD (Kompatibilitas Frontend)
   // ==========================================
   get: (action, params) => ApiService._get(action, params),
+  
   post: (payload, extraData = {}) => {
     if (typeof payload === 'string') {
       return ApiService._post(payload, extraData);
@@ -221,4 +245,5 @@ const ApiService = {
 };
 
 // Alias Global agar kompatibel jika skrip panggilan menggunakan 'API' atau 'ApiService'
-const API = ApiService;
+window.API = ApiService;
+window.ApiService = ApiService;
