@@ -1,11 +1,10 @@
 /**
  * js/auth.js
- * Auth Module - Keamanan & Hak Akses Role
+ * Auth Module - Keamanan, Hak Akses Role, & Manajemen Sesi
  */
 const Auth = {
   STORAGE_KEY: "kepo_user",
 
-  // Normalisasi nama role agar tidak bentrok dengan kapital/istilah berbeda
   normalizeRole(rawRole) {
     if (!rawRole) return "guru";
     const role = String(rawRole).toLowerCase().trim();
@@ -15,10 +14,9 @@ const Auth = {
     return "guru";
   },
 
-  // Hak Akses Halaman per Role
   ROLE_PERMISSIONS: {
-    admin: "*", // Admin bebas akses semua halaman
-    user: "*",  // User biasa bebas akses semua halaman
+    admin: "*",
+    user: "*",
     piket: [
       "index.html",
       "input-pelanggaran.html",
@@ -32,7 +30,6 @@ const Auth = {
     ]
   },
 
-  // Halaman Default jika Pengguna Mencoba Akses Halaman Terlarang
   DEFAULT_PAGE: {
     admin: "index.html",
     user: "index.html",
@@ -74,6 +71,21 @@ const Auth = {
     return lastSegment.toLowerCase();
   },
 
+  // Helper untuk Memperbarui UI Navigasi (Mengatasi TypeError: _updateNavUI)
+  _updateNavUI(user) {
+    if (!user) return;
+    
+    const userNameEl = document.getElementById("nav-user-name") || document.getElementById("user-name");
+    if (userNameEl) {
+      userNameEl.textContent = user.nama_guru || user.nama || user.username || "Pengguna";
+    }
+
+    const userRoleEl = document.getElementById("nav-user-role") || document.getElementById("user-role");
+    if (userRoleEl) {
+      userRoleEl.textContent = (user.role || "Guru").toUpperCase();
+    }
+  },
+
   async handleLogin(username, password) {
     if (!username || !password) {
       return { status: "error", message: "Username dan Password wajib diisi!" };
@@ -82,9 +94,11 @@ const Auth = {
     try {
       const res = await ApiService.login(username, password);
       if (res && res.status === "success" && res.data) {
+        // Menyimpan password ke sesi agar otomatis dikirim pada request API berikutnya
         const sessionData = {
           ...res.data,
           username: res.data.username || username,
+          password: password, 
           role: res.data.role || "guru"
         };
 
