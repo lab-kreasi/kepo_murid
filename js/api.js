@@ -5,6 +5,18 @@
 const ApiService = {
 
   /**
+   * Helper Internal untuk Mendapatkan URL Server secara Fleksibel
+   * Mendukung nama variabel CONFIG.API_URL maupun CONFIG.BASE_URL
+   */
+  _getApiUrl() {
+    if (typeof CONFIG !== 'undefined') {
+      const url = CONFIG.API_URL || CONFIG.BASE_URL;
+      if (url) return url;
+    }
+    throw new Error("URL API belum dikonfigurasi. Pastikan CONFIG.API_URL atau CONFIG.BASE_URL ada di js/config.js");
+  },
+
+  /**
    * Helper Internal untuk Mengambil Kredensial Sesi Aktif
    */
   _getAuthCredentials() {
@@ -39,10 +51,7 @@ const ApiService = {
    */
   async _get(action, params = {}) {
     try {
-      if (typeof CONFIG === 'undefined' || !CONFIG.API_URL) {
-        throw new Error("CONFIG.API_URL belum dikonfigurasi di js/config.js");
-      }
-
+      const baseUrl = this._getApiUrl();
       const creds = this._getAuthCredentials();
       const urlParams = new URLSearchParams();
 
@@ -58,7 +67,11 @@ const ApiService = {
         }
       });
 
-      const response = await fetch(`${CONFIG.API_URL}?${urlParams.toString()}`, {
+      // Penanganan tanda hubung URL query string
+      const separator = baseUrl.includes("?") ? "&" : "?";
+      const finalUrl = `${baseUrl}${separator}${urlParams.toString()}`;
+
+      const response = await fetch(finalUrl, {
         method: "GET",
         redirect: "follow" // WAJIB: Google Apps Script melakukan 302 Redirect
       });
@@ -76,21 +89,19 @@ const ApiService = {
    */
   async _post(action, payload = {}) {
     try {
-      if (typeof CONFIG === 'undefined' || !CONFIG.API_URL) {
-        throw new Error("CONFIG.API_URL belum dikonfigurasi di js/config.js");
-      }
-
+      const baseUrl = this._getApiUrl();
       const creds = this._getAuthCredentials();
 
-      // Struktur Body POST disesuaikan agar terbaca oleh Code.gs
+      // Struktur Body POST: gabungkan properti di root level & sertakan nested data agar kompatibel dengan berbagai skrip backend
       const requestBody = {
         action: action,
-        username: payload.username || creds.username,
-        password: payload.password || creds.password,
+        username: payload.username || creds.username || "",
+        password: payload.password || creds.password || "",
+        ...payload,
         data: payload
       };
 
-      const response = await fetch(CONFIG.API_URL, {
+      const response = await fetch(baseUrl, {
         method: "POST",
         redirect: "follow", // WAJIB: Google Apps Script melakukan 302 Redirect
         headers: { "Content-Type": "text/plain;charset=utf-8" },
@@ -156,8 +167,10 @@ const ApiService = {
   // ==========================================
   // 4. CATATAN PELANGGARAN CONTROLLER
   // ==========================================
-  getCatatan: (tahun = CONFIG?.DEFAULT_TAHUN_AJARAN, siswaId = "") => 
-    ApiService._get("getCatatan", { tahun, siswa_id: siswaId }),
+  getCatatan: (tahun = "", siswaId = "") => {
+    const t = tahun || (typeof CONFIG !== 'undefined' ? CONFIG.DEFAULT_TAHUN_AJARAN : "");
+    return ApiService._get("getCatatan", { tahun: t, siswa_id: siswaId });
+  },
 
   addCatatan: (catatanData) => 
     ApiService._post("addCatatan", catatanData),
@@ -171,11 +184,15 @@ const ApiService = {
   // ==========================================
   // 5. REPORT & DASHBOARD CONTROLLER
   // ==========================================
-  getDashboardData: (tahun = CONFIG?.DEFAULT_TAHUN_AJARAN) => 
-    ApiService._get("getDashboardData", { tahun }),
+  getDashboardData: (tahun = "") => {
+    const t = tahun || (typeof CONFIG !== 'undefined' ? CONFIG.DEFAULT_TAHUN_AJARAN : "");
+    return ApiService._get("getDashboardData", { tahun: t });
+  },
 
-  getRankingSiswa: (tahun = CONFIG?.DEFAULT_TAHUN_AJARAN, limit = "") => 
-    ApiService._get("getRankingSiswa", { tahun, limit }),
+  getRankingSiswa: (tahun = "", limit = "") => {
+    const t = tahun || (typeof CONFIG !== 'undefined' ? CONFIG.DEFAULT_TAHUN_AJARAN : "");
+    return ApiService._get("getRankingSiswa", { tahun: t, limit });
+  },
 
   // ==========================================
   // 6. JENIS PRESTASI CONTROLLER
