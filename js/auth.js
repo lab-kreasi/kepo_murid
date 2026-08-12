@@ -1,6 +1,6 @@
 /**
  * js/auth.js
- * Auth Module - Keamanan & Manajemen Sesi Berdasarkan Role (Server-Side Ready)
+ * Auth Module - Keamanan, Manajemen Sesi & Anti-Looping System (Server-Side Ready)
  */
 const Auth = {
   STORAGE_KEY: "kepo_user",
@@ -40,21 +40,28 @@ const Auth = {
     localStorage.setItem(this.STORAGE_KEY, JSON.stringify(userData));
   },
 
-  // Ambil data user dari localStorage / sessionStorage
+  // Ambil & Validasi Ketat Data User dari Storage
   getUserSession() {
     try {
-      const user = localStorage.getItem(this.STORAGE_KEY) || sessionStorage.getItem(this.STORAGE_KEY);
-      return user ? JSON.parse(user) : null;
+      const raw = localStorage.getItem(this.STORAGE_KEY) || sessionStorage.getItem(this.STORAGE_KEY);
+      if (!raw) return null;
+      
+      const user = JSON.parse(raw);
+      // Validasi struktur objek sesi: wajib memiliki username dan role
+      if (user && typeof user === "object" && user.username && user.role) {
+        return user;
+      }
     } catch (e) {
-      console.error("[Auth] Error parsing session:", e);
-      return null;
+      console.error("[Auth] Sesi corrupt/tidak valid:", e);
     }
+    return null;
   },
 
   // Hapus sesi (Logout)
   logout() {
     localStorage.removeItem(this.STORAGE_KEY);
     sessionStorage.removeItem(this.STORAGE_KEY);
+    sessionStorage.removeItem("_auth_redirect_cnt");
     window.location.replace("login.html");
   },
 
@@ -88,7 +95,6 @@ const Auth = {
     try {
       const res = await ApiService.login(username, password);
       if (res && res.status === "success" && res.data) {
-        // Gabungkan data response dengan password asli untuk autentikasi server-side API berikutnya
         const sessionData = {
           ...res.data,
           username: res.data.username || username,
@@ -97,6 +103,7 @@ const Auth = {
         };
 
         this.setUserSession(sessionData);
+        sessionStorage.removeItem("_auth_redirect_cnt"); // Reset konter pengalihan
         return { status: "success", data: sessionData };
       }
       return res || { status: "error", message: "Username atau password salah!" };
@@ -107,57 +114,72 @@ const Auth = {
   },
 
   /**
-   * Central Guard - Proteksi Halaman & Pengalihan Hak Akses Akseleratif
+   * Central Guard - Proteksi Halaman & Pengalihan Hak Akses (Anti-Loop)
    */
   checkAccess() {
+    // A. Circuit Breaker: Cegah Infinite Redirect Loop (Max 3x berturut-turut)
+    let redirectCount = parseInt(sessionStorage.getItem("_auth_redirect_cnt") || "0", 10);
+    if (redirectCount > 3) {
+      console.error("[Auth] Loop pengalihan terdeteksi! Memaksa logout...");
+      sessionStorage.removeItem("_auth_redirect_cnt");
+      this.logout();
+      return null;
+    }
+
     const currentPage = this.getCurrentPage();
     const user = this.getUserSession();
     const isLoginPage = currentPage === "login.html";
 
-    // Kasus 1: Akses Halaman Login
-    if (isLoginPage) {
-      if (user) {
-        const role = (user.role || "").toLowerCase().trim();
-        const targetPage = this.DEFAULT_PAGE[role] || "laporan.html";
-        window.location.replace(targetPage);
+    // Kasus 1: Belum Login / Sesi Rusak
+    if (!user) {
+      if (!isLoginPage) {
+        sessionStorage.setItem("_auth_redirect_cnt", (redirectCount + 1).toString());
+        window.location.replace("login.html");
         return null;
       }
-      // Buka halaman login jika belum login
+      // Di halaman login & belum login
+      sessionStorage.removeItem("_auth_redirect_cnt");
       document.documentElement.classList.add("auth-verified");
       return null;
     }
 
-    // Kasus 2: Belum Login tetapi membuka Halaman Terproteksi
-    if (!user) {
-      window.location.replace("login.html");
+    const role = String(user.role || "").toLowerCase().trim();
+    const defaultTarget = this.DEFAULT_PAGE[role] || "laporan.html";
+
+    // Kasus 2: Sudah Login tetapi membuka Login.html
+    if (isLoginPage) {
+      sessionStorage.setItem("_auth_redirect_cnt", (redirectCount + 1).toString());
+      window.location.replace(defaultTarget);
       return null;
     }
 
     // Kasus 3: Verifikasi Hak Akses Role pada Halaman Saat Ini
-    const role = (user.role || "").toLowerCase().trim();
     const allowedPages = this.ROLE_PERMISSIONS[role];
-
     let isAllowed = false;
+
     if (allowedPages === "*") {
       isAllowed = true;
     } else if (Array.isArray(allowedPages)) {
       isAllowed = allowedPages.includes(currentPage);
     }
 
-    // Jika Tidak Berhak Akses: Lempar ke Halaman Default Role
+    // Kasus 4: Halaman TIDAK diizinkan untuk Role saat ini
     if (!isAllowed) {
-      const redirectTarget = this.DEFAULT_PAGE[role] || "laporan.html";
-      
-      // Mencegah Infinite Loop jika Target Sama dengan Halaman Saat Ini
-      if (redirectTarget !== currentPage) {
-        window.location.replace(redirectTarget);
-      } else {
-        window.location.replace("laporan.html");
+      // Jika target default sama dengan halaman saat ini, paksa logout untuk menghentikan loop
+      if (defaultTarget === currentPage) {
+        console.error(`[Auth] Role '${role}' tidak diizinkan membuka '${currentPage}' dan target fallback sama.`);
+        sessionStorage.removeItem("_auth_redirect_cnt");
+        this.logout();
+        return null;
       }
+
+      sessionStorage.setItem("_auth_redirect_cnt", (redirectCount + 1).toString());
+      window.location.replace(defaultTarget);
       return null;
     }
 
-    // Jika Lolos Verifikasi: Buka Tampilan (Anti-Flicker)
+    // Lolos Verifikasi: Reset Konter Redirect & Tampilkan Halaman
+    sessionStorage.removeItem("_auth_redirect_cnt");
     document.documentElement.classList.add("auth-verified");
 
     // Tampilkan Nama User pada UI Navbar jika DOM sudah siap
@@ -175,7 +197,7 @@ const Auth = {
     const userElement = document.getElementById("nav-user-name");
     if (userElement && user) {
       const displayName = user.nama_guru || user.username || "User";
-      const roleName = (user.role || "").toUpperCase();
+      const roleName = String(user.role || "").toUpperCase();
       userElement.textContent = `${displayName} (${roleName})`;
     }
   },
@@ -190,5 +212,5 @@ const Auth = {
   }
 };
 
-// EKSEKUSI PROTEKSI INSTAN (Mencegah Layar Berkedip / Flicker)
+// EKSEKUSI PROTEKSI INSTAN
 Auth.checkAccess();
