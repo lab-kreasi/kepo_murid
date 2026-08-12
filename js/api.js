@@ -1,8 +1,39 @@
 /**
  * Module API Service untuk menghubungkan Frontend ke Backend Google Apps Script
+ * Dilengkapi dengan Auto-Injection Kredensial untuk Verifikasi Server-Side
  */
 const ApiService = {
-  
+
+  /**
+   * Helper Internal untuk Mengambil Kredensial Sesi Aktif
+   */
+  _getAuthCredentials() {
+    try {
+      // 1. Cek via Module Auth jika tersedia
+      if (typeof Auth !== 'undefined' && typeof Auth.getUserSession === 'function') {
+        const user = Auth.getUserSession();
+        if (user) {
+          return {
+            username: user.username || "",
+            password: user.password || ""
+          };
+        }
+      }
+      // 2. Fallback pembacaan langsung dari LocalStorage / SessionStorage
+      const stored = localStorage.getItem("kepo_user") || sessionStorage.getItem("kepo_user");
+      if (stored) {
+        const user = JSON.parse(stored);
+        return {
+          username: user.username || "",
+          password: user.password || ""
+        };
+      }
+    } catch (e) {
+      console.warn("[API SERVICE] Gagal membaca kredensial sesi:", e);
+    }
+    return { username: "", password: "" };
+  },
+
   /**
    * Helper Internal untuk HTTP GET
    */
@@ -12,10 +43,15 @@ const ApiService = {
         throw new Error("CONFIG.API_URL belum dikonfigurasi di js/config.js");
       }
 
+      const creds = this._getAuthCredentials();
       const urlParams = new URLSearchParams();
-      urlParams.append("action", action);
 
-      // Hanya tambahkan parameter yang memiliki nilai valid (bukan undefined / null / kosong)
+      // Set parameter dasar & kredensial wajib server-side
+      urlParams.append("action", action);
+      if (creds.username) urlParams.append("username", creds.username);
+      if (creds.password) urlParams.append("password", creds.password);
+
+      // Tambahkan parameter kustom (hanya nilai valid)
       Object.keys(params).forEach(key => {
         if (params[key] !== undefined && params[key] !== null && params[key] !== '') {
           urlParams.append(key, params[key]);
@@ -26,7 +62,7 @@ const ApiService = {
         method: "GET",
         redirect: "follow" // WAJIB: Google Apps Script melakukan 302 Redirect
       });
-      
+
       if (!response.ok) throw new Error(`HTTP Error Status: ${response.status}`);
       return await response.json();
     } catch (error) {
@@ -44,11 +80,21 @@ const ApiService = {
         throw new Error("CONFIG.API_URL belum dikonfigurasi di js/config.js");
       }
 
+      const creds = this._getAuthCredentials();
+
+      // Struktur Body POST disesuaikan agar terbaca oleh Code.gs
+      const requestBody = {
+        action: action,
+        username: payload.username || creds.username,
+        password: payload.password || creds.password,
+        data: payload
+      };
+
       const response = await fetch(CONFIG.API_URL, {
         method: "POST",
         redirect: "follow", // WAJIB: Google Apps Script melakukan 302 Redirect
         headers: { "Content-Type": "text/plain;charset=utf-8" },
-        body: JSON.stringify({ action, data: payload })
+        body: JSON.stringify(requestBody)
       });
 
       if (!response.ok) throw new Error(`HTTP Error Status: ${response.status}`);
@@ -79,7 +125,6 @@ const ApiService = {
 
   // ==========================================
   // 2. SISWA CONTROLLER
-  // Default 'tahun' diubah ke "" agar tidak memblokir pencarian master siswa
   // ==========================================
   getSiswa: (tahun = "", kelas = "", search = "") => 
     ApiService._get("getSiswa", { tahun, kelas, search }),
@@ -95,7 +140,6 @@ const ApiService = {
 
   // ==========================================
   // 3. JENIS PELANGGARAN CONTROLLER
-  // Default 'tahun' diubah ke "" agar master jenis pelanggaran selalu tampil
   // ==========================================
   getJenisPelanggaran: (tahun = "") => 
     ApiService._get("getJenisPelanggaran", { tahun }),
@@ -135,7 +179,6 @@ const ApiService = {
 
   // ==========================================
   // 6. JENIS PRESTASI CONTROLLER
-  // Default 'tahun' diubah ke ""
   // ==========================================
   getJenisPrestasi: (tahun = "") => 
     ApiService._get("getJenisPrestasi", { tahun }),
