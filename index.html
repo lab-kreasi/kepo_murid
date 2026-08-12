@@ -17,6 +17,34 @@
   <script src="js/api.js"></script>
   <script src="js/auth.js"></script>
 
+  <!-- Script Proteksi Langsung (Synchronous sebelum DOM dirender) -->
+  <script>
+    (function () {
+      const page = Auth.getCurrentPage();
+      const user = Auth.getUserSession();
+
+      // 1. Jika Belum Login, Langsung Lempar ke login.html TANPA Menampilkan Halaman Ini
+      if (!user || !user.role || !user.token) {
+        window.location.replace("login.html");
+        return;
+      }
+
+      // 2. Verifikasi Izin Akses Role
+      const role = String(user.role).toLowerCase();
+      const allowed = Auth.ROLE_PERMISSIONS[role];
+      const isAllowed = allowed === "*" || (Array.isArray(allowed) && allowed.includes(page));
+
+      if (!isAllowed) {
+        const targetPage = Auth.DEFAULT_PAGE[role] || "laporan.html";
+        window.location.replace(targetPage);
+        return;
+      }
+
+      // 3. Jika Lolos, Tampilkan Halaman
+      document.documentElement.classList.add("auth-verified");
+    })();
+  </script>
+
   <script src="https://cdn.tailwindcss.com"></script>
 </head>
 <body class="bg-slate-100 text-slate-800 font-sans antialiased min-h-screen flex flex-col md:flex-row relative overflow-x-hidden">
