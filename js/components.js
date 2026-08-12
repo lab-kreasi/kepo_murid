@@ -15,17 +15,20 @@ function renderSidebar() {
   const rolePermissions = (typeof Auth !== "undefined" && Auth.ROLE_PERMISSIONS) ? Auth.ROLE_PERMISSIONS : {
     admin: "*",
     user: [
+      "index.html",
       "input-pelanggaran.html",
       "input-prestasi.html",
       "siswa.html",
       "laporan.html"
     ],
     piket: [
+      "index.html",
       "input-pelanggaran.html",
       "input-prestasi.html",
       "laporan.html"
     ],
     guru: [
+      "index.html",
       "laporan.html"
     ]
   };

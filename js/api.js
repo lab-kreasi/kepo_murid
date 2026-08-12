@@ -1,249 +1,247 @@
-/**
- * Module API Service untuk menghubungkan Frontend ke Backend Google Apps Script
- * Dilengkapi dengan Auto-Injection Kredensial untuk Verifikasi Server-Side
- */
-const ApiService = {
+(() => {
+  if (window.ApiService) return;
 
-  /**
-   * Helper Internal untuk Mendapatkan URL Server secara Fleksibel
-   * Mendukung nama variabel CONFIG.API_URL maupun CONFIG.BASE_URL
-   */
-  _getApiUrl() {
-    if (typeof CONFIG !== 'undefined') {
-      const url = CONFIG.API_URL || CONFIG.BASE_URL;
-      if (url) return url;
-    } else if (typeof window !== 'undefined' && window.CONFIG) {
-      const url = window.CONFIG.API_URL || window.CONFIG.BASE_URL;
-      if (url) return url;
-    }
-    throw new Error("URL API belum dikonfigurasi. Pastikan CONFIG.API_URL atau CONFIG.BASE_URL ada di js/config.js");
-  },
+  const ApiService = {
+    _getApiUrl() {
+      if (typeof CONFIG !== 'undefined') {
+        const url = CONFIG.API_URL || CONFIG.BASE_URL;
+        if (url) return url;
+      } else if (typeof window !== 'undefined' && window.CONFIG) {
+        const url = window.CONFIG.API_URL || window.CONFIG.BASE_URL;
+        if (url) return url;
+      }
+      throw new Error("URL API belum dikonfigurasi. Pastikan CONFIG.API_URL atau CONFIG.BASE_URL ada di js/config.js");
+    },
 
-  /**
-   * Helper Internal untuk Mengambil Kredensial Sesi Aktif
-   */
-  _getAuthCredentials() {
-    try {
-      // 1. Cek via Module Auth jika tersedia
-      if (typeof Auth !== 'undefined') {
-        const user = (typeof Auth.getUserSession === 'function') 
-          ? Auth.getUserSession() 
-          : (typeof Auth.getUser === 'function' ? Auth.getUser() : null);
+    _getAuthCredentials() {
+      try {
+        if (typeof Auth !== 'undefined') {
+          const user = (typeof Auth.getUserSession === 'function') 
+            ? Auth.getUserSession() 
+            : (typeof Auth.getUser === 'function' ? Auth.getUser() : null);
+          
+          if (user) {
+            return {
+              username: user.username || "",
+              password: user.password || ""
+            };
+          }
+        }
+
+        const stored = localStorage.getItem("user") || 
+                       sessionStorage.getItem("user") || 
+                       localStorage.getItem("kepo_user") || 
+                       sessionStorage.getItem("kepo_user");
         
-        if (user) {
+        if (stored) {
+          const user = JSON.parse(stored);
           return {
             username: user.username || "",
             password: user.password || ""
           };
         }
+      } catch (e) {
+        console.warn("[API SERVICE] Gagal membaca kredensial sesi:", e);
       }
+      return { username: "", password: "" };
+    },
 
-      // 2. Fallback pembacaan langsung dari LocalStorage / SessionStorage
-      const stored = localStorage.getItem("user") || 
-                     sessionStorage.getItem("user") || 
-                     localStorage.getItem("kepo_user") || 
-                     sessionStorage.getItem("kepo_user");
-      
-      if (stored) {
-        const user = JSON.parse(stored);
-        return {
-          username: user.username || "",
-          password: user.password || ""
+    _getCache(cacheKey) {
+      try {
+        const cached = sessionStorage.getItem("kepo_api_cache_" + cacheKey);
+        if (cached) return JSON.parse(cached);
+      } catch (e) {}
+      return null;
+    },
+
+    _setCache(cacheKey, data) {
+      try {
+        sessionStorage.setItem("kepo_api_cache_" + cacheKey, JSON.stringify(data));
+      } catch (e) {}
+    },
+
+    clearCache() {
+      try {
+        Object.keys(sessionStorage).forEach(key => {
+          if (key.startsWith("kepo_api_cache_")) {
+            sessionStorage.removeItem(key);
+          }
+        });
+      } catch (e) {}
+    },
+
+    async _parseResponse(response) {
+      const textData = await response.text();
+      try {
+        return JSON.parse(textData);
+      } catch (e) {
+        console.error("[API PARSE ERROR] Respons bukan JSON valid:", textData.substring(0, 150));
+        throw new Error("Respons dari server tidak valid. Pastikan URL dan Izin Google Apps Script sudah benar.");
+      }
+    },
+
+    async _get(action, params = {}, forceRefresh = false) {
+      try {
+        const baseUrl = this._getApiUrl();
+        const creds = this._getAuthCredentials();
+        const urlParams = new URLSearchParams();
+
+        urlParams.append("action", action);
+        if (creds.username) urlParams.append("username", creds.username);
+        if (creds.password) urlParams.append("password", creds.password);
+
+        Object.keys(params).forEach(key => {
+          if (params[key] !== undefined && params[key] !== null && params[key] !== '') {
+            urlParams.append(key, params[key]);
+          }
+        });
+
+        const cacheKey = `${action}_${urlParams.toString()}`;
+
+        if (!forceRefresh) {
+          const cachedResult = this._getCache(cacheKey);
+          if (cachedResult) return cachedResult;
+        }
+
+        const separator = baseUrl.includes("?") ? "&" : "?";
+        const finalUrl = `${baseUrl}${separator}${urlParams.toString()}`;
+
+        const response = await fetch(finalUrl, {
+          method: "GET",
+          redirect: "follow"
+        });
+
+        if (!response.ok) throw new Error(`HTTP Error Status: ${response.status}`);
+        
+        const result = await this._parseResponse(response);
+
+        if (result && result.status !== 'error') {
+          this._setCache(cacheKey, result);
+        }
+
+        return result;
+
+      } catch (error) {
+        console.error(`[API GET ERROR] Action: ${action}`, error);
+        return { status: "error", message: "Gagal terhubung ke server: " + error.message };
+      }
+    },
+
+    async _post(action, payload = {}) {
+      try {
+        const baseUrl = this._getApiUrl();
+        const creds = this._getAuthCredentials();
+
+        const requestBody = {
+          action: action,
+          username: payload.username || creds.username || "",
+          password: payload.password || creds.password || "",
+          data: payload
         };
+
+        Object.keys(payload).forEach(key => {
+          if (key !== 'username' && key !== 'password') {
+            requestBody[key] = payload[key];
+          }
+        });
+
+        const response = await fetch(baseUrl, {
+          method: "POST",
+          redirect: "follow",
+          headers: { "Content-Type": "text/plain;charset=utf-8" },
+          body: JSON.stringify(requestBody)
+        });
+
+        if (!response.ok) throw new Error(`HTTP Error Status: ${response.status}`);
+        
+        const result = await this._parseResponse(response);
+
+        if (action !== "login" && result && result.status !== "error") {
+          this.clearCache();
+        }
+
+        return result;
+
+      } catch (error) {
+        console.error(`[API POST ERROR] Action: ${action}`, error);
+        return { status: "error", message: "Gagal mengirim data ke server: " + error.message };
       }
-    } catch (e) {
-      console.warn("[API SERVICE] Gagal membaca kredensial sesi:", e);
-    }
-    return { username: "", password: "" };
-  },
+    },
 
-  /**
-   * Helper Internal untuk Parsing Respons dari Google Apps Script
-   * Mencegah crash jika GAS mengembalikan halaman HTML saat terjadi error
-   */
-  async _parseResponse(response) {
-    const textData = await response.text();
-    try {
-      return JSON.parse(textData);
-    } catch (e) {
-      console.error("[API PARSE ERROR] Respons bukan JSON yang valid:", textData.substring(0, 150));
-      throw new Error("Respons dari server tidak valid. Pastikan URL dan Izin Google Apps Script sudah benar.");
-    }
-  },
+    get: (action, params, forceRefresh) => ApiService._get(action, params, forceRefresh),
+    
+    post: (payload, extraData = {}) => {
+      if (typeof payload === 'string') {
+        return ApiService._post(payload, extraData);
+      }
+      const { action, ...data } = payload || {};
+      return ApiService._post(action, data.data || data);
+    },
 
-  /**
-   * Helper Internal untuk HTTP GET
-   */
-  async _get(action, params = {}) {
-    try {
-      const baseUrl = this._getApiUrl();
-      const creds = this._getAuthCredentials();
-      const urlParams = new URLSearchParams();
+    login: (username, password) => 
+      ApiService._post("login", { username, password }),
 
-      // Set parameter dasar & kredensial wajib server-side
-      urlParams.append("action", action);
-      if (creds.username) urlParams.append("username", creds.username);
-      if (creds.password) urlParams.append("password", creds.password);
+    getSiswa: (tahun = "", kelas = "", search = "", forceRefresh = false) => 
+      ApiService._get("getSiswa", { tahun, kelas, search }, forceRefresh),
 
-      // Tambahkan parameter kustom (hanya nilai valid)
-      Object.keys(params).forEach(key => {
-        if (params[key] !== undefined && params[key] !== null && params[key] !== '') {
-          urlParams.append(key, params[key]);
-        }
-      });
+    addSiswa: (siswaData) => 
+      ApiService._post("addSiswa", siswaData),
 
-      // Penanganan tanda hubung URL query string
-      const separator = baseUrl.includes("?") ? "&" : "?";
-      const finalUrl = `${baseUrl}${separator}${urlParams.toString()}`;
+    updateSiswa: (id, siswaData) => 
+      ApiService._post("updateSiswa", { id, ...siswaData }),
 
-      const response = await fetch(finalUrl, {
-        method: "GET",
-        redirect: "follow" // WAJIB: Google Apps Script melakukan 302 Redirect
-      });
+    deleteSiswa: (id) => 
+      ApiService._post("deleteSiswa", { id }),
 
-      if (!response.ok) throw new Error(`HTTP Error Status: ${response.status}`);
-      return await this._parseResponse(response);
+    getJenisPelanggaran: (tahun = "", forceRefresh = false) => 
+      ApiService._get("getJenisPelanggaran", { tahun }, forceRefresh),
 
-    } catch (error) {
-      console.error(`[API GET ERROR] Action: ${action}`, error);
-      return { status: "error", message: "Gagal terhubung ke server: " + error.message };
-    }
-  },
+    addJenisPelanggaran: (pelanggaranData) => 
+      ApiService._post("addJenisPelanggaran", pelanggaranData),
 
-  /**
-   * Helper Internal untuk HTTP POST
-   */
-  async _post(action, payload = {}) {
-    try {
-      const baseUrl = this._getApiUrl();
-      const creds = this._getAuthCredentials();
+    updateJenisPelanggaran: (id, pelanggaranData) => 
+      ApiService._post("updateJenisPelanggaran", { id, ...pelanggaranData }),
 
-      // Menata ulang Body POST agar rapi dan kompatibel dengan backend GAS
-      const requestBody = {
-        action: action,
-        username: payload.username || creds.username || "",
-        password: payload.password || creds.password || "",
-        data: payload // Tempatkan payload di dalam key data
-      };
+    deleteJenisPelanggaran: (id) => 
+      ApiService._post("deleteJenisPelanggaran", { id }),
 
-      // Tambahkan properti root dari payload jika dibutuhkan backend khusus
-      Object.keys(payload).forEach(key => {
-        if (key !== 'username' && key !== 'password') {
-          requestBody[key] = payload[key];
-        }
-      });
+    getCatatan: (tahun = "", siswaId = "", forceRefresh = false) => {
+      const t = tahun || (typeof CONFIG !== 'undefined' ? CONFIG.DEFAULT_TAHUN_AJARAN : "");
+      return ApiService._get("getCatatan", { tahun: t, siswa_id: siswaId }, forceRefresh);
+    },
 
-      const response = await fetch(baseUrl, {
-        method: "POST",
-        redirect: "follow", // WAJIB: Google Apps Script melakukan 302 Redirect
-        headers: { "Content-Type": "text/plain;charset=utf-8" },
-        body: JSON.stringify(requestBody)
-      });
+    addCatatan: (catatanData) => 
+      ApiService._post("addCatatan", catatanData),
 
-      if (!response.ok) throw new Error(`HTTP Error Status: ${response.status}`);
-      return await this._parseResponse(response);
+    quickRecord: (quickData) => 
+      ApiService._post("quickRecord", quickData),
 
-    } catch (error) {
-      console.error(`[API POST ERROR] Action: ${action}`, error);
-      return { status: "error", message: "Gagal mengirim data ke server: " + error.message };
-    }
-  },
+    deleteCatatan: (id) => 
+      ApiService._post("deleteCatatan", { id }),
 
-  // ==========================================
-  // GENERIK METHOD (Kompatibilitas Frontend)
-  // ==========================================
-  get: (action, params) => ApiService._get(action, params),
-  
-  post: (payload, extraData = {}) => {
-    if (typeof payload === 'string') {
-      return ApiService._post(payload, extraData);
-    }
-    const { action, ...data } = payload || {};
-    return ApiService._post(action, data.data || data);
-  },
+    getDashboardData: (tahun = "", forceRefresh = false) => {
+      const t = tahun || (typeof CONFIG !== 'undefined' ? CONFIG.DEFAULT_TAHUN_AJARAN : "");
+      return ApiService._get("getDashboardData", { tahun: t }, forceRefresh);
+    },
 
-  // ==========================================
-  // 1. AUTHENTICATION
-  // ==========================================
-  login: (username, password) => 
-    ApiService._post("login", { username, password }),
+    getRankingSiswa: (tahun = "", limit = "", forceRefresh = false) => {
+      const t = tahun || (typeof CONFIG !== 'undefined' ? CONFIG.DEFAULT_TAHUN_AJARAN : "");
+      return ApiService._get("getRankingSiswa", { tahun: t, limit }, forceRefresh);
+    },
 
-  // ==========================================
-  // 2. SISWA CONTROLLER
-  // ==========================================
-  getSiswa: (tahun = "", kelas = "", search = "") => 
-    ApiService._get("getSiswa", { tahun, kelas, search }),
+    getJenisPrestasi: (tahun = "", forceRefresh = false) => 
+      ApiService._get("getJenisPrestasi", { tahun }, forceRefresh),
 
-  addSiswa: (siswaData) => 
-    ApiService._post("addSiswa", siswaData),
+    addJenisPrestasi: (prestasiData) => 
+      ApiService._post("addJenisPrestasi", prestasiData),
 
-  updateSiswa: (id, siswaData) => 
-    ApiService._post("updateSiswa", { id, ...siswaData }),
+    updateJenisPrestasi: (id, prestasiData) => 
+      ApiService._post("updateJenisPrestasi", { id, ...prestasiData }),
 
-  deleteSiswa: (id) => 
-    ApiService._post("deleteSiswa", { id }),
+    deleteJenisPrestasi: (id) => 
+      ApiService._post("deleteJenisPrestasi", { id })
+  };
 
-  // ==========================================
-  // 3. JENIS PELANGGARAN CONTROLLER
-  // ==========================================
-  getJenisPelanggaran: (tahun = "") => 
-    ApiService._get("getJenisPelanggaran", { tahun }),
-
-  addJenisPelanggaran: (pelanggaranData) => 
-    ApiService._post("addJenisPelanggaran", pelanggaranData),
-
-  updateJenisPelanggaran: (id, pelanggaranData) => 
-    ApiService._post("updateJenisPelanggaran", { id, ...pelanggaranData }),
-
-  deleteJenisPelanggaran: (id) => 
-    ApiService._post("deleteJenisPelanggaran", { id }),
-
-  // ==========================================
-  // 4. CATATAN PELANGGARAN CONTROLLER
-  // ==========================================
-  getCatatan: (tahun = "", siswaId = "") => {
-    const t = tahun || (typeof CONFIG !== 'undefined' ? CONFIG.DEFAULT_TAHUN_AJARAN : "");
-    return ApiService._get("getCatatan", { tahun: t, siswa_id: siswaId });
-  },
-
-  addCatatan: (catatanData) => 
-    ApiService._post("addCatatan", catatanData),
-
-  quickRecord: (quickData) => 
-    ApiService._post("quickRecord", quickData),
-
-  deleteCatatan: (id) => 
-    ApiService._post("deleteCatatan", { id }),
-
-  // ==========================================
-  // 5. REPORT & DASHBOARD CONTROLLER
-  // ==========================================
-  getDashboardData: (tahun = "") => {
-    const t = tahun || (typeof CONFIG !== 'undefined' ? CONFIG.DEFAULT_TAHUN_AJARAN : "");
-    return ApiService._get("getDashboardData", { tahun: t });
-  },
-
-  getRankingSiswa: (tahun = "", limit = "") => {
-    const t = tahun || (typeof CONFIG !== 'undefined' ? CONFIG.DEFAULT_TAHUN_AJARAN : "");
-    return ApiService._get("getRankingSiswa", { tahun: t, limit });
-  },
-
-  // ==========================================
-  // 6. JENIS PRESTASI CONTROLLER
-  // ==========================================
-  getJenisPrestasi: (tahun = "") => 
-    ApiService._get("getJenisPrestasi", { tahun }),
-
-  addJenisPrestasi: (prestasiData) => 
-    ApiService._post("addJenisPrestasi", prestasiData),
-
-  updateJenisPrestasi: (id, prestasiData) => 
-    ApiService._post("updateJenisPrestasi", { id, ...prestasiData }),
-
-  deleteJenisPrestasi: (id) => 
-    ApiService._post("deleteJenisPrestasi", { id })
-};
-
-// Alias Global agar kompatibel jika skrip panggilan menggunakan 'API' atau 'ApiService'
-window.API = ApiService;
-window.ApiService = ApiService;
+  window.API = ApiService;
+  window.ApiService = ApiService;
+})();
