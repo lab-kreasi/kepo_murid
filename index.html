@@ -4,49 +4,24 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Dashboard - KEPO Murid</title>
+  
+  <!-- Style Anti-Flicker -->
   <style>
     html:not(.auth-verified) body { 
       display: none !important; 
     }
   </style>
 
-  <!-- Script Proteksi Langsung (Synchronous sebelum DOM dirender) -->
+  <!-- Core Scripts (Urutan Harus Benar: Config -> API -> Auth) -->
+  <script src="js/config.js"></script>
+  <script src="js/api.js"></script>
   <script src="js/auth.js"></script>
-  <script>
-    (function () {
-      const page = Auth.getCurrentPage();
-      const user = Auth.getUserSession();
 
-      // 1. Jika Belum Login, Langsung Lempar ke login.html TANPA Menampilkan Halaman Ini
-      if (!user || !user.role || !user.token) {
-        window.location.replace("login.html");
-        return;
-      }
-
-      // 2. Verifikasi Izin Akses Role
-      const role = String(user.role).toLowerCase();
-      const allowed = Auth.ROLE_PERMISSIONS[role];
-      const isAllowed = allowed === "*" || (Array.isArray(allowed) && allowed.includes(page));
-
-      if (!isAllowed) {
-        const targetPage = Auth.DEFAULT_PAGE[role] || "laporan.html";
-        window.location.replace(targetPage);
-        return;
-      }
-
-      // 3. Jika Lolos, Tampilkan Halaman
-      document.documentElement.classList.add("auth-verified");
-    })();
-  </script>
-  <script>
-    // Otomatis lempar user yang sudah login ke halaman rolenya
-    Auth.checkAccess();
-  </script>
   <script src="https://cdn.tailwindcss.com"></script>
 </head>
 <body class="bg-slate-100 text-slate-800 font-sans antialiased min-h-screen flex flex-col md:flex-row relative overflow-x-hidden">
 
-  <!-- Mobile Top Bar (Hanya muncul di layar HP / Layar Kecil) -->
+  <!-- Mobile Top Bar -->
   <header class="md:hidden bg-white border-b border-slate-200 px-4 py-3 flex items-center justify-between sticky top-0 z-30 shadow-sm">
     <div class="flex items-center gap-3">
       <button id="mobile-menu-btn" class="p-2 rounded-xl bg-slate-100 text-slate-700 hover:bg-slate-200 focus:outline-none transition">
@@ -60,12 +35,12 @@
     </span>
   </header>
 
-  <!-- Overlay Latar Belakang Dark/Blur saat Sidebar Mobile Terbuka -->
+  <!-- Overlay Latar Belakang -->
   <div id="sidebar-overlay" class="fixed inset-0 bg-slate-900/40 backdrop-blur-sm z-40 hidden md:hidden transition-opacity duration-300"></div>
 
-  <!-- Sidebar Container (Responsif: Slide-in di Mobile, Permanent di Desktop) -->
+  <!-- Sidebar Container -->
   <aside id="sidebar-container" class="fixed md:sticky top-0 inset-y-0 left-0 z-50 w-64 h-screen bg-white border-r border-slate-200/80 transform -translate-x-full md:translate-x-0 transition-transform duration-300 ease-in-out flex-shrink-0 overflow-y-auto">
-    <!-- Konten sidebar akan di-render otomatis via js/components.js -->
+    <!-- Render via js/components.js -->
   </aside>
 
   <!-- Main Content Dashboard -->
@@ -190,7 +165,7 @@
 
   </main>
 
-  <!-- Script JS Interaktivitas Drawer & Mobile Toggle -->
+  <!-- Script Drawer Mobile Toggle -->
   <script>
     document.addEventListener("DOMContentLoaded", () => {
       const mobileMenuBtn = document.getElementById("mobile-menu-btn");
@@ -215,10 +190,7 @@
     });
   </script>
 
-  <!-- Script JS Backend Core -->
-  <script src="js/config.js"></script>
-  <script src="js/api.js"></script>
-  <script src="js/auth.js"></script>
+  <!-- Script JS Tampilan & Aplikasi -->
   <script src="js/components.js"></script>
   <script src="js/dashboard.js"></script>
 </body>
