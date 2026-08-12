@@ -14,9 +14,34 @@
   <script src="js/config.js"></script>
   <script src="js/api.js"></script>
   <script src="js/auth.js"></script>
+
   <script>
-    // Otomatis lempar user yang sudah login ke halaman rolenya saat membuka login.html
-    Auth.checkAccess();
+    // Proteksi Halaman Login & Buka Tampilan (Anti-Flicker)
+    document.addEventListener("DOMContentLoaded", () => {
+      try {
+        // Jika user sudah memiliki sesi valid, langsung arahkan ke halaman rolenya
+        if (typeof Auth !== "undefined" && typeof Auth.getUser === "function") {
+          const user = Auth.getUser();
+          if (user && user.role) {
+            const role = String(user.role).toLowerCase().trim();
+            const defaultPages = {
+              admin: "index.html",
+              user: "index.html",
+              piket: "index.html",
+              guru: "laporan.html"
+            };
+            const target = (Auth.DEFAULT_PAGE && Auth.DEFAULT_PAGE[role]) || defaultPages[role] || "index.html";
+            window.location.replace(target);
+            return;
+          }
+        }
+      } catch (err) {
+        console.warn("Gagal mengecek sesi login awal:", err);
+      }
+
+      // Tampilkan halaman login jika user belum login
+      document.documentElement.classList.add("auth-verified");
+    });
   </script>
 
   <script src="https://cdn.tailwindcss.com"></script>
@@ -87,14 +112,26 @@
         const res = await Auth.handleLogin(usernameInput, passwordInput);
 
         if (res && res.status === "success") {
-          // AMBIL ROLE SESUAI HASIL API (BUKAN HARDCODE INDEX.HTML)
-          const role = String(res.data.role || "guru").toLowerCase().trim();
-          const targetPage = Auth.DEFAULT_PAGE[role] || "laporan.html";
+          // Ambil role dari response API
+          const rawRole = res.data && res.data.role ? res.data.role : "guru";
+          const role = String(rawRole).toLowerCase().trim();
+
+          // Map halaman tujuan berdasarkan hak akses role
+          const defaultPages = {
+            admin: "index.html",
+            user: "index.html",
+            piket: "index.html",
+            guru: "laporan.html"
+          };
+
+          const targetPage = (Auth.DEFAULT_PAGE && Auth.DEFAULT_PAGE[role]) 
+            || defaultPages[role] 
+            || "laporan.html";
           
-          // Alihkan langsung ke halaman yang diizinkan untuk role tersebut
+          // Alihkan ke halaman tujuan
           window.location.replace(targetPage);
         } else {
-          errorEl.textContent = res.message || "Username atau password salah!";
+          errorEl.textContent = (res && res.message) ? res.message : "Username atau password salah!";
           errorEl.classList.remove("hidden");
           btnSubmit.disabled = false;
           btnSubmit.innerHTML = `<span>Masuk</span>`;
