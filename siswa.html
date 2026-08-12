@@ -4,6 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Kelola Siswa - KEPO Murid</title>
+
   <style>
     html:not(.auth-verified) body { 
       display: none !important; 
@@ -19,20 +20,25 @@
       const page = Auth.getCurrentPage();
       const user = Auth.getUserSession();
 
-      // 1. Jika Belum Login, Langsung Lempar ke login.html TANPA Menampilkan Halaman Ini
-      if (!user || !user.role || !user.token) {
+      // 1. Validasi Sesi: Pastikan object user, username, dan role ada
+      if (!user || !user.username || !user.role) {
+        localStorage.removeItem("user");
+        sessionStorage.removeItem("user");
+        localStorage.removeItem("kepo_user");
         window.location.replace("login.html");
         return;
       }
 
       // 2. Verifikasi Izin Akses Role
       const role = String(user.role).toLowerCase();
-      const allowed = Auth.ROLE_PERMISSIONS[role];
+      const allowed = Auth.ROLE_PERMISSIONS ? Auth.ROLE_PERMISSIONS[role] : "*";
       const isAllowed = allowed === "*" || (Array.isArray(allowed) && allowed.includes(page));
 
       if (!isAllowed) {
-        const targetPage = Auth.DEFAULT_PAGE[role] || "laporan.html";
-        window.location.replace(targetPage);
+        const targetPage = (Auth.DEFAULT_PAGE && Auth.DEFAULT_PAGE[role]) ? Auth.DEFAULT_PAGE[role] : "laporan.html";
+        if (targetPage !== page) {
+            window.location.replace(targetPage);
+        }
         return;
       }
 
@@ -159,7 +165,12 @@
                 </tr>
               </thead>
               <tbody id="tbody-siswa" class="divide-y divide-slate-100 text-slate-700 font-medium">
-                <!-- Data di-render via js/siswa.js -->
+                <tr>
+                  <td colspan="6" class="py-8 text-center text-slate-400 font-normal">
+                    <div class="inline-block animate-spin rounded-full h-6 w-6 border-2 border-blue-600 border-t-transparent mb-2"></div>
+                    <p class="text-xs">Membaca data siswa dari spreadsheet...</p>
+                  </td>
+                </tr>
               </tbody>
             </table>
           </div>
@@ -198,5 +209,6 @@
   <!-- JavaScript Dependencies -->
   <script src="js/components.js"></script>
   <script src="js/siswa.js"></script>
+  <script src="js/router.js"></script>
 </body>
 </html>

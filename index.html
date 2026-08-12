@@ -17,7 +17,7 @@
   <script src="js/api.js"></script>
   <script src="js/auth.js"></script>
 
-<!-- Script Proteksi Langsung (Synchronous sebelum DOM dirender) -->
+  <!-- Script Proteksi Langsung (Synchronous sebelum DOM dirender) -->
   <script>
     (function () {
       const page = Auth.getCurrentPage();
@@ -153,6 +153,7 @@
       <div class="bg-white rounded-2xl p-5 sm:p-6 border border-slate-200/80 shadow-sm lg:col-span-1">
         <h3 class="text-sm sm:text-base font-bold text-slate-900 mb-4 pb-2 border-b border-slate-100">Aksi Cepat</h3>
         <div class="space-y-3">
+          <!-- Tautan ini akan otomatis ditangkap oleh router.js berkat arsitektur SPA kita -->
           <a href="input-pelanggaran.html" class="flex items-center justify-between p-3 sm:p-3.5 rounded-xl bg-amber-50 hover:bg-amber-100/80 text-amber-900 font-semibold transition border border-amber-200/60 text-xs sm:text-sm">
             <span class="flex items-center gap-2.5 sm:gap-3">
               <svg class="w-4 h-4 sm:w-5 sm:h-5 text-amber-600 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg>
@@ -230,5 +231,6 @@
   <!-- Script JS Tampilan & Aplikasi -->
   <script src="js/components.js"></script>
   <script src="js/dashboard.js"></script>
+  <script src="js/router.js"></script>
 </body>
 </html>
