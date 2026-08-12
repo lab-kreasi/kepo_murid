@@ -30,9 +30,19 @@ const ApiService = {
             password: user.password || ""
           };
         }
+      } else if (typeof Auth !== 'undefined' && typeof Auth.getUser === 'function') {
+        const user = Auth.getUser();
+        if (user) {
+          return {
+            username: user.username || "",
+            password: user.password || ""
+          };
+        }
       }
+
       // 2. Fallback pembacaan langsung dari LocalStorage / SessionStorage
-      const stored = localStorage.getItem("kepo_user") || sessionStorage.getItem("kepo_user");
+      // Membaca dari berbagai kemungkinan kunci (user atau kepo_user)
+      const stored = localStorage.getItem("user") || sessionStorage.getItem("user") || localStorage.getItem("kepo_user") || sessionStorage.getItem("kepo_user");
       if (stored) {
         const user = JSON.parse(stored);
         return {
