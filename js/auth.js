@@ -1,33 +1,38 @@
 /**
  * js/auth.js
- * Auth Module - Keamanan, Akses Role & Anti-Looping System dengan Console Debugger
+ * Auth Module - Keamanan & Hak Akses Role
  */
 const Auth = {
   STORAGE_KEY: "kepo_user",
 
-  // Pemetaan Hak Akses Halaman per Role
+  // Normalisasi nama role agar tidak bentrok dengan kapital/istilah berbeda
+  normalizeRole(rawRole) {
+    if (!rawRole) return "guru";
+    const role = String(rawRole).toLowerCase().trim();
+    if (["admin", "administrator", "superadmin", "utama"].includes(role)) return "admin";
+    if (["user", "staf", "staff", "operator"].includes(role)) return "user";
+    if (["piket", "petugas"].includes(role)) return "piket";
+    return "guru";
+  },
+
+  // Hak Akses Halaman per Role
   ROLE_PERMISSIONS: {
-    admin: "*",
-    user: [
+    admin: "*", // Admin bebas akses semua halaman
+    user: "*",  // User biasa bebas akses semua halaman
+    piket: [
       "index.html",
       "input-pelanggaran.html",
       "input-prestasi.html",
-      "siswa.html",
       "laporan.html",
-      "jenis-pelanggaran.html",
-      "jenis-prestasi.html"
-    ],
-    piket: [
-      "input-pelanggaran.html",
-      "input-prestasi.html",
-      "laporan.html"
+      "siswa.html"
     ],
     guru: [
-      "laporan.html" // Role Guru HANYA boleh mengakses Laporan
+      "index.html",
+      "laporan.html"
     ]
   },
 
-  // Halaman Utama Default per Role
+  // Halaman Default jika Pengguna Mencoba Akses Halaman Terlarang
   DEFAULT_PAGE: {
     admin: "index.html",
     user: "index.html",
@@ -45,7 +50,7 @@ const Auth = {
       if (!raw) return null;
       
       const user = JSON.parse(raw);
-      if (user && typeof user === "object" && (user.username || user.nama_guru) && user.role) {
+      if (user && typeof user === "object" && (user.username || user.nama_guru || user.id)) {
         return user;
       }
     } catch (e) {
@@ -55,30 +60,18 @@ const Auth = {
   },
 
   logout() {
-    console.warn("[Auth] Logging out user...");
     localStorage.removeItem(this.STORAGE_KEY);
     sessionStorage.removeItem(this.STORAGE_KEY);
-    sessionStorage.removeItem("_auth_redirect_cnt");
     window.location.replace("login.html");
   },
 
   getCurrentPage() {
     let path = window.location.pathname.split("?")[0].split("#")[0];
     let lastSegment = path.split("/").filter(Boolean).pop() || "index.html";
-
-    const validPages = [
-      "index", "login", "siswa", "laporan", 
-      "input-pelanggaran", "input-prestasi", 
-      "jenis-pelanggaran", "jenis-prestasi"
-    ];
-
-    let cleanName = lastSegment.replace(/\.html$/i, "").toLowerCase();
-
-    if (validPages.includes(cleanName)) {
-      return cleanName + ".html";
+    if (!lastSegment.endsWith(".html")) {
+      lastSegment += ".html";
     }
-
-    return "index.html";
+    return lastSegment.toLowerCase();
   },
 
   async handleLogin(username, password) {
@@ -92,12 +85,10 @@ const Auth = {
         const sessionData = {
           ...res.data,
           username: res.data.username || username,
-          role: String(res.data.role || "guru").toLowerCase().trim(),
-          password: password
+          role: res.data.role || "guru"
         };
 
         this.setUserSession(sessionData);
-        sessionStorage.removeItem("_auth_redirect_cnt");
         return { status: "success", data: sessionData };
       }
       return res || { status: "error", message: "Username atau password salah!" };
@@ -112,38 +103,21 @@ const Auth = {
     const user = this.getUserSession();
     const isLoginPage = currentPage === "login.html";
 
-    console.log(`[AUTH DEBUG] Page: '${currentPage}' | Session:`, user ? `${user.username} (${user.role})` : "NO SESSION");
-
-    // Circuit Breaker: Hentikan jika terjadi pengalihan > 3 kali
-    let redirectCount = parseInt(sessionStorage.getItem("_auth_redirect_cnt") || "0", 10);
-    if (redirectCount > 3) {
-      console.error("[AUTH ERROR] Loop terdeteksi (>3 redirects)! Menghapus sesi...");
-      sessionStorage.removeItem("_auth_redirect_cnt");
-      this.logout();
-      return null;
-    }
-
     // 1. Jika Belum Login
     if (!user) {
       if (!isLoginPage) {
-        console.warn("[AUTH] Belum login. Mengalihkan ke login.html");
-        sessionStorage.setItem("_auth_redirect_cnt", (redirectCount + 1).toString());
         window.location.replace("login.html");
         return null;
       }
-      sessionStorage.removeItem("_auth_redirect_cnt");
       document.documentElement.classList.add("auth-verified");
       return null;
     }
 
-    // Normalisasi Role
-    const role = String(user.role || "").toLowerCase().trim();
-    const defaultTarget = this.DEFAULT_PAGE[role] || "laporan.html";
+    const role = this.normalizeRole(user.role);
+    const defaultTarget = this.DEFAULT_PAGE[role] || "index.html";
 
     // 2. Jika Sudah Login tapi Membuka login.html
     if (isLoginPage) {
-      console.log(`[AUTH] Sudah login sebagai '${role}'. Mengalihkan ke '${defaultTarget}'`);
-      sessionStorage.setItem("_auth_redirect_cnt", (redirectCount + 1).toString());
       window.location.replace(defaultTarget);
       return null;
     }
@@ -158,25 +132,16 @@ const Auth = {
       isAllowed = allowedPages.includes(currentPage);
     }
 
-    // 4. Jika Halaman Tidak Diizinkan
+    // 4. Jika Halaman Dilarang untuk Role Tersebut
     if (!isAllowed) {
-      console.warn(`[AUTH] Role '${role}' DILARANG mengakses '${currentPage}'. Mengalihkan ke '${defaultTarget}'`);
-      
-      if (defaultTarget === currentPage) {
-        console.error("[AUTH ERROR] Target pengalihan sama dengan halaman saat ini. Menghapus sesi...");
-        sessionStorage.removeItem("_auth_redirect_cnt");
-        this.logout();
-        return null;
+      console.warn(`[AUTH] Role '${role}' dilarang mengakses '${currentPage}'. Melempar ke '${defaultTarget}'`);
+      if (currentPage !== defaultTarget) {
+        window.location.replace(defaultTarget);
       }
-
-      sessionStorage.setItem("_auth_redirect_cnt", (redirectCount + 1).toString());
-      window.location.replace(defaultTarget);
       return null;
     }
 
     // 5. Akses Diizinkan
-    console.log(`[AUTH SUCCESS] Akses diizinkan untuk '${user.username}' di '${currentPage}'`);
-    sessionStorage.removeItem("_auth_redirect_cnt");
     document.documentElement.classList.add("auth-verified");
 
     if (document.readyState === "loading") {
@@ -186,20 +151,8 @@ const Auth = {
     }
 
     return user;
-  },
-
-  _updateNavUI(user) {
-    const userElement = document.getElementById("nav-user-name");
-    if (userElement && user) {
-      const displayName = user.nama_guru || user.username || "User";
-      const roleName = String(user.role || "").toUpperCase();
-      userElement.textContent = `${displayName} (${roleName})`;
-    }
-  },
-
-  protectPage() { return this.checkAccess(); },
-  redirectIfLoggedIn() { return this.checkAccess(); }
+  }
 };
 
-// Eksekusi Instan Guard
+// Jalankan Pengecekan Akses Otomatis
 Auth.checkAccess();
