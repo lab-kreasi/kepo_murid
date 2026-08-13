@@ -3,7 +3,7 @@
  * Injeksi Sidebar UI secara otomatis dengan Penyaringan Hak Akses Role (RBAC)
  */
 
-function renderSidebar() {
+function renderSidebar(pageOverride = null) {
   const container = document.getElementById("sidebar-container");
   if (!container) return;
 
@@ -35,16 +35,27 @@ function renderSidebar() {
 
   // Helper untuk mengecek apakah role berhak mengakses halaman tertentu
   const canAccess = (pageName) => {
-    const allowed = rolePermissions[role];
+    const allowed = rolePermissions[role] || rolePermissions["guru"];
     if (allowed === "*") return true;
     return Array.isArray(allowed) && allowed.includes(pageName);
   };
 
-  // 3. Deteksi halaman aktif saat ini
-  const currentPath = window.location.pathname.split("/").pop().toLowerCase().split("?")[0].split("#")[0] || "index.html";
+  // 3. Deteksi halaman aktif saat ini (Dukungan SPA, Router Override, Hash & Subfolder)
+  let currentPath = pageOverride;
+  if (!currentPath) {
+    const rawPath = window.location.pathname.split("/").pop();
+    const rawHash = window.location.hash.replace(/^#\/?/, "");
+    currentPath = rawHash || rawPath;
+  }
+
+  // Sanitasi string nama halaman
+  currentPath = (currentPath || "index.html").toLowerCase().split("?")[0].split("#")[0];
+  if (currentPath === "" || currentPath === "/") {
+    currentPath = "index.html";
+  }
 
   const getMenuClass = (pageName) => {
-    const isActive = currentPath === pageName || (pageName === 'index.html' && currentPath === '');
+    const isActive = currentPath === pageName;
     if (isActive) {
       return "flex items-center gap-3 px-4 py-2.5 rounded-xl bg-blue-600 text-white font-medium shadow-md transition";
     }
@@ -54,7 +65,7 @@ function renderSidebar() {
   // 4. Susun Menu Navigasi Berdasarkan Izin Role
   let navContent = "";
 
-  // Dashboard (Hanya tampil jika role diizinkan)
+  // Dashboard
   if (canAccess("index.html")) {
     navContent += `
       <a href="index.html" class="${getMenuClass('index.html')}">
@@ -183,9 +194,23 @@ function renderSidebar() {
     </div>
   `;
 
-  // Tutup sidebar otomatis saat link menu diklik pada layar mobile (width < 768px)
-  container.querySelectorAll("a").forEach(link => {
-    link.addEventListener("click", () => {
+  // Tangani klik menu untuk memperbarui highlight & navigasi SPA
+  container.querySelectorAll("a[href]").forEach(link => {
+    link.addEventListener("click", (e) => {
+      const targetPage = link.getAttribute("href");
+
+      // Jika menggunakan SPA Router (loadPage)
+      if (typeof window.loadPage === "function" && targetPage && !targetPage.startsWith("http")) {
+        e.preventDefault(); // Cegah refresh halaman browser
+        
+        // 1. Panggil router untuk muat konten
+        window.loadPage(targetPage);
+        
+        // 2. Perbarui highlight sidebar secara instan
+        renderSidebar(targetPage);
+      }
+
+      // Tutup sidebar otomatis pada layar mobile
       const overlay = document.getElementById("sidebar-overlay");
       if (window.innerWidth < 768) {
         container.classList.add("-translate-x-full");
@@ -204,9 +229,13 @@ function handleLogout() {
   }
 }
 
-// Menjamin renderSidebar dipanggil terlepas dari waktu muat DOM
+// Eksplisit Ekspor Fungsi ke Window untuk Akses Global / SPA Router
+window.renderSidebar = renderSidebar;
+window.handleLogout = handleLogout;
+
+// Eksekusi otomatis sesuai status dokumen
 if (document.readyState === "loading") {
-  document.addEventListener("DOMContentLoaded", renderSidebar);
+  document.addEventListener("DOMContentLoaded", () => renderSidebar());
 } else {
   renderSidebar();
 }
