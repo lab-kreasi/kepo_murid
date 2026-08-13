@@ -14,17 +14,20 @@ function renderSidebar(pageOverride = null) {
   // 2. Pemetaan Hak Akses (Gunakan dari Auth jika ada, atau fallback)
   const rolePermissions = (typeof Auth !== "undefined" && Auth.ROLE_PERMISSIONS) ? Auth.ROLE_PERMISSIONS : {
     admin: "*",
+    piket: [
+      "index.html",
+      "alpa.html",
+      "bolos.html",
+      "terlambat.html",
+      "input-pelanggaran.html",
+      "input-prestasi.html",
+      "laporan.html"
+    ],
     user: [
       "index.html",
       "input-pelanggaran.html",
       "input-prestasi.html",
       "siswa.html",
-      "laporan.html"
-    ],
-    piket: [
-      "index.html",
-      "input-pelanggaran.html",
-      "input-prestasi.html",
       "laporan.html"
     ],
     guru: [
@@ -73,6 +76,40 @@ function renderSidebar(pageOverride = null) {
         <span>Dashboard</span>
       </a>
     `;
+  }
+
+  // Presensi Piket Group (Khusus Admin & Piket)
+  const showPiketGroup = canAccess("alpa.html") || canAccess("bolos.html") || canAccess("terlambat.html");
+  if (showPiketGroup) {
+    navContent += `
+      <div class="pt-3">
+        <div class="px-4 text-[11px] font-semibold text-slate-500 uppercase tracking-wider mb-1">Presensi Piket</div>
+    `;
+    if (canAccess("alpa.html")) {
+      navContent += `
+        <a href="alpa.html" class="${getMenuClass('alpa.html')}">
+          <svg class="w-5 h-5 text-red-400 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+          <span>Input Alpa</span>
+        </a>
+      `;
+    }
+    if (canAccess("bolos.html")) {
+      navContent += `
+        <a href="bolos.html" class="${getMenuClass('bolos.html')}">
+          <svg class="w-5 h-5 text-orange-400 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"></path></svg>
+          <span>Input Bolos</span>
+        </a>
+      `;
+    }
+    if (canAccess("terlambat.html")) {
+      navContent += `
+        <a href="terlambat.html" class="${getMenuClass('terlambat.html')}">
+          <svg class="w-5 h-5 text-yellow-400 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+          <span>Input Terlambat</span>
+        </a>
+      `;
+    }
+    navContent += `</div>`;
   }
 
   // Pelanggaran Group

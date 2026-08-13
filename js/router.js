@@ -104,6 +104,9 @@
     let scriptSrc = "";
 
     if (pageUrl.includes("index.html") || pageUrl === "/" || pageUrl === "") scriptSrc = "js/dashboard.js";
+    else if (pageUrl.includes("alpa.html")) scriptSrc = "js/alpa.js";
+    else if (pageUrl.includes("bolos.html")) scriptSrc = "js/bolos.js";
+    else if (pageUrl.includes("terlambat.html")) scriptSrc = "js/terlambat.js";
     else if (pageUrl.includes("siswa.html")) scriptSrc = "js/siswa.js";
     else if (pageUrl.includes("input-pelanggaran")) scriptSrc = "js/input.js";
     else if (pageUrl.includes("input-prestasi")) scriptSrc = "js/input-prestasi.js";
